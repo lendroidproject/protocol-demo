@@ -1,0 +1,1530 @@
+{
+  "contractName": "PriceFeedProviderBase",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_address",
+          "type": "address"
+        }
+      ],
+      "name": "setLendroidPriceFeedManager",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_address",
+          "type": "address"
+        }
+      ],
+      "name": "setLendroidNetworkParameters",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_symbol",
+          "type": "bytes32"
+        }
+      ],
+      "name": "updateLendroidPriceFeed",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x6060604052336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555061053d806100536000396000f30060606040526004361061006d576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063212e810014610072578063885c43cd146100c35780638da5cb5b14610114578063f2fde38b14610169578063f6d5b06f146101a2575b600080fd5b341561007d57600080fd5b6100a9600480803573ffffffffffffffffffffffffffffffffffffffff169060200190919050506101e1565b604051808215151515815260200191505060405180910390f35b34156100ce57600080fd5b6100fa600480803573ffffffffffffffffffffffffffffffffffffffff16906020019091905050610288565b604051808215151515815260200191505060405180910390f35b341561011f57600080fd5b61012761032f565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b341561017457600080fd5b6101a0600480803573ffffffffffffffffffffffffffffffffffffffff16906020019091905050610354565b005b34156101ad57600080fd5b6101c7600480803560001916906020019091905050610429565b604051808215151515815260200191505060405180910390f35b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614151561023e57600080fd5b81600360006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555060019050919050565b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415156102e557600080fd5b81600260006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555060019050919050565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415156103af57600080fd5b600073ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff1614151561042657806000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505b50565b6000600360009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166393781ffb83600160008660001916600019168152602001908152602001600020546000604051602001526040518363ffffffff167c010000000000000000000000000000000000000000000000000000000002815260040180836000191660001916815260200182815260200192505050602060405180830381600087803b15156104ef57600080fd5b6102c65a03f1151561050057600080fd5b5050506040518051905090509190505600a165627a7a723058209653cbf3019ed0ce2e49eea12ddcf8cc7881607bf325ceec8f3f728e05ecdd780029",
+  "deployedBytecode": "0x60606040526004361061006d576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063212e810014610072578063885c43cd146100c35780638da5cb5b14610114578063f2fde38b14610169578063f6d5b06f146101a2575b600080fd5b341561007d57600080fd5b6100a9600480803573ffffffffffffffffffffffffffffffffffffffff169060200190919050506101e1565b604051808215151515815260200191505060405180910390f35b34156100ce57600080fd5b6100fa600480803573ffffffffffffffffffffffffffffffffffffffff16906020019091905050610288565b604051808215151515815260200191505060405180910390f35b341561011f57600080fd5b61012761032f565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b341561017457600080fd5b6101a0600480803573ffffffffffffffffffffffffffffffffffffffff16906020019091905050610354565b005b34156101ad57600080fd5b6101c7600480803560001916906020019091905050610429565b604051808215151515815260200191505060405180910390f35b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614151561023e57600080fd5b81600360006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555060019050919050565b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415156102e557600080fd5b81600260006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555060019050919050565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415156103af57600080fd5b600073ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff1614151561042657806000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505b50565b6000600360009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166393781ffb83600160008660001916600019168152602001908152602001600020546000604051602001526040518363ffffffff167c010000000000000000000000000000000000000000000000000000000002815260040180836000191660001916815260200182815260200192505050602060405180830381600087803b15156104ef57600080fd5b6102c65a03f1151561050057600080fd5b5050506040518051905090509190505600a165627a7a723058209653cbf3019ed0ce2e49eea12ddcf8cc7881607bf325ceec8f3f728e05ecdd780029",
+  "sourceMap": "240:1367:4:-;;;430:10:2;422:5;;:18;;;;;;;;;;;;;;;;;;240:1367:4;;;;;;",
+  "deployedSourceMap": "240:1367:4:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;705:181;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;894:184;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;247:20:2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;772:128;;;;;;;;;;;;;;;;;;;;;;;;;;;;1434:168:4;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;705:181;786:4;583:5:2;;;;;;;;;;;569:19;;:10;:19;;;561:28;;;;;;;;847:8:4;803:24;;:53;;;;;;;;;;;;;;;;;;874:4;867:11;;705:181;;;:::o;894:184::-;976:4;583:5:2;;;;;;;;;;;569:19;;:10;:19;;;561:28;;;;;;;;1039:8:4;993:25;;:55;;;;;;;;;;;;;;;;;;1066:4;1059:11;;894:184;;;:::o;247:20:2:-;;;;;;;;;;;;;:::o;772:128::-;583:5;;;;;;;;;;;569:19;;:10;:19;;;561:28;;;;;;;;858:1;838:22;;:8;:22;;;;834:61;;;879:8;871:5;;:16;;;;;;;;;;;;;;;;;;834:61;772:128;:::o;1434:168:4:-;1500:4;1523:24;;;;;;;;;;;:40;;;1564:7;1573:11;:20;1585:7;1573:20;;;;;;;;;;;;;;;;;;1523:71;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1516:78;;1434:168;;;:::o",
+  "source": "\r\n/*\r\n    Coinmarketcap-based price updater\r\n    For now, this is manual. Will be updated every ~60 seconds.\r\n*/\r\n\r\npragma solidity ^0.4.18;\r\nimport \"./Ownable.sol\";\r\nimport \"./NetworkParameters.sol\";\r\nimport \"./PriceFeedManager.sol\";\r\n\r\n\r\ncontract PriceFeedProviderBase is Ownable {\r\n\r\n    mapping (bytes32 => uint) tokenPrices;\r\n\r\n    NetworkParameters LendroidNetworkParameters;\r\n    PriceFeedManager LendroidPriceFeedManager;\r\n\r\n    modifier isValidSymbol(bytes32 _symbol) {\r\n        require(LendroidNetworkParameters.isValidSymbol(_symbol));\r\n        _;\r\n    }\r\n\r\n    /// @dev Allows owner to set the PriceFeedManager contract.\r\n    /// @param _address Address of the PriceFeedManager contract.\r\n    function setLendroidPriceFeedManager(address _address) public onlyOwner returns (bool) {\r\n        LendroidPriceFeedManager = PriceFeedManager(_address);\r\n        return true;\r\n    }\r\n\r\n    function setLendroidNetworkParameters(address _address) public onlyOwner returns (bool) {\r\n        LendroidNetworkParameters = NetworkParameters(_address);\r\n        return true;\r\n    }\r\n\r\n    function getDecimalsBySymbol(bytes32 _symbol) internal constant returns (uint) {\r\n        return LendroidNetworkParameters.getTokenDecimalsBySymbol(_symbol);\r\n    }\r\n\r\n    function getDecimalsByAddress(address _address) internal constant returns (uint) {\r\n        return LendroidNetworkParameters.getTokenDecimalsByAddress(_address);\r\n    }\r\n\r\n    function updateLendroidPriceFeed(bytes32 _symbol) public returns (bool){\r\n        return LendroidPriceFeedManager.updatePriceFeed(_symbol, tokenPrices[_symbol]);\r\n    }\r\n\r\n}",
+  "sourcePath": "C:\\work\\programming\\ethereum\\lendroid\\protocol-demo\\contracts\\PriceFeedProviderBase.sol",
+  "ast": {
+    "attributes": {
+      "absolutePath": "/C/work/programming/ethereum/lendroid/protocol-demo/contracts/PriceFeedProviderBase.sol",
+      "exportedSymbols": {
+        "PriceFeedProviderBase": [
+          1265
+        ]
+      }
+    },
+    "children": [
+      {
+        "attributes": {
+          "literals": [
+            "solidity",
+            "^",
+            "0.4",
+            ".18"
+          ]
+        },
+        "id": 1160,
+        "name": "PragmaDirective",
+        "src": "116:24:4"
+      },
+      {
+        "attributes": {
+          "SourceUnit": 733,
+          "absolutePath": "/C/work/programming/ethereum/lendroid/protocol-demo/contracts/Ownable.sol",
+          "file": "./Ownable.sol",
+          "scope": 1266,
+          "symbolAliases": [
+            null
+          ],
+          "unitAlias": ""
+        },
+        "id": 1161,
+        "name": "ImportDirective",
+        "src": "142:23:4"
+      },
+      {
+        "attributes": {
+          "SourceUnit": 613,
+          "absolutePath": "/C/work/programming/ethereum/lendroid/protocol-demo/contracts/NetworkParameters.sol",
+          "file": "./NetworkParameters.sol",
+          "scope": 1266,
+          "symbolAliases": [
+            null
+          ],
+          "unitAlias": ""
+        },
+        "id": 1162,
+        "name": "ImportDirective",
+        "src": "167:33:4"
+      },
+      {
+        "attributes": {
+          "SourceUnit": 1159,
+          "absolutePath": "/C/work/programming/ethereum/lendroid/protocol-demo/contracts/PriceFeedManager.sol",
+          "file": "./PriceFeedManager.sol",
+          "scope": 1266,
+          "symbolAliases": [
+            null
+          ],
+          "unitAlias": ""
+        },
+        "id": 1163,
+        "name": "ImportDirective",
+        "src": "202:32:4"
+      },
+      {
+        "attributes": {
+          "contractDependencies": [
+            732
+          ],
+          "contractKind": "contract",
+          "documentation": null,
+          "fullyImplemented": true,
+          "linearizedBaseContracts": [
+            1265,
+            732
+          ],
+          "name": "PriceFeedProviderBase",
+          "scope": 1266
+        },
+        "children": [
+          {
+            "attributes": {
+              "arguments": [
+                null
+              ]
+            },
+            "children": [
+              {
+                "attributes": {
+                  "contractScope": null,
+                  "name": "Ownable",
+                  "referencedDeclaration": 732,
+                  "type": "contract Ownable"
+                },
+                "id": 1164,
+                "name": "UserDefinedTypeName",
+                "src": "274:7:4"
+              }
+            ],
+            "id": 1165,
+            "name": "InheritanceSpecifier",
+            "src": "274:7:4"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "name": "tokenPrices",
+              "scope": 1265,
+              "stateVariable": true,
+              "storageLocation": "default",
+              "type": "mapping(bytes32 => uint256)",
+              "value": null,
+              "visibility": "internal"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "type": "mapping(bytes32 => uint256)"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "bytes32",
+                      "type": "bytes32"
+                    },
+                    "id": 1166,
+                    "name": "ElementaryTypeName",
+                    "src": "300:7:4"
+                  },
+                  {
+                    "attributes": {
+                      "name": "uint",
+                      "type": "uint256"
+                    },
+                    "id": 1167,
+                    "name": "ElementaryTypeName",
+                    "src": "311:4:4"
+                  }
+                ],
+                "id": 1168,
+                "name": "Mapping",
+                "src": "291:25:4"
+              }
+            ],
+            "id": 1169,
+            "name": "VariableDeclaration",
+            "src": "291:37:4"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "name": "LendroidNetworkParameters",
+              "scope": 1265,
+              "stateVariable": true,
+              "storageLocation": "default",
+              "type": "contract NetworkParameters",
+              "value": null,
+              "visibility": "internal"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "contractScope": null,
+                  "name": "NetworkParameters",
+                  "referencedDeclaration": 612,
+                  "type": "contract NetworkParameters"
+                },
+                "id": 1170,
+                "name": "UserDefinedTypeName",
+                "src": "337:17:4"
+              }
+            ],
+            "id": 1171,
+            "name": "VariableDeclaration",
+            "src": "337:43:4"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "name": "LendroidPriceFeedManager",
+              "scope": 1265,
+              "stateVariable": true,
+              "storageLocation": "default",
+              "type": "contract PriceFeedManager",
+              "value": null,
+              "visibility": "internal"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "contractScope": null,
+                  "name": "PriceFeedManager",
+                  "referencedDeclaration": 1158,
+                  "type": "contract PriceFeedManager"
+                },
+                "id": 1172,
+                "name": "UserDefinedTypeName",
+                "src": "387:16:4"
+              }
+            ],
+            "id": 1173,
+            "name": "VariableDeclaration",
+            "src": "387:41:4"
+          },
+          {
+            "attributes": {
+              "name": "isValidSymbol",
+              "visibility": "internal"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_symbol",
+                      "scope": 1186,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bytes32",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bytes32",
+                          "type": "bytes32"
+                        },
+                        "id": 1174,
+                        "name": "ElementaryTypeName",
+                        "src": "460:7:4"
+                      }
+                    ],
+                    "id": 1175,
+                    "name": "VariableDeclaration",
+                    "src": "460:15:4"
+                  }
+                ],
+                "id": 1176,
+                "name": "ParameterList",
+                "src": "459:17:4"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "isStructConstructorCall": false,
+                          "lValueRequested": false,
+                          "names": [
+                            null
+                          ],
+                          "type": "tuple()",
+                          "type_conversion": false
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_bool",
+                                  "typeString": "bool"
+                                }
+                              ],
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 7395,
+                              "type": "function (bool) pure",
+                              "value": "require"
+                            },
+                            "id": 1177,
+                            "name": "Identifier",
+                            "src": "488:7:4"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "isStructConstructorCall": false,
+                              "lValueRequested": false,
+                              "names": [
+                                null
+                              ],
+                              "type": "bool",
+                              "type_conversion": false
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": [
+                                    {
+                                      "typeIdentifier": "t_bytes32",
+                                      "typeString": "bytes32"
+                                    }
+                                  ],
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "member_name": "isValidSymbol",
+                                  "referencedDeclaration": 193,
+                                  "type": "function (bytes32) view external returns (bool)"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 1171,
+                                      "type": "contract NetworkParameters",
+                                      "value": "LendroidNetworkParameters"
+                                    },
+                                    "id": 1178,
+                                    "name": "Identifier",
+                                    "src": "496:25:4"
+                                  }
+                                ],
+                                "id": 1179,
+                                "name": "MemberAccess",
+                                "src": "496:39:4"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 1175,
+                                  "type": "bytes32",
+                                  "value": "_symbol"
+                                },
+                                "id": 1180,
+                                "name": "Identifier",
+                                "src": "536:7:4"
+                              }
+                            ],
+                            "id": 1181,
+                            "name": "FunctionCall",
+                            "src": "496:48:4"
+                          }
+                        ],
+                        "id": 1182,
+                        "name": "FunctionCall",
+                        "src": "488:57:4"
+                      }
+                    ],
+                    "id": 1183,
+                    "name": "ExpressionStatement",
+                    "src": "488:57:4"
+                  },
+                  {
+                    "id": 1184,
+                    "name": "PlaceholderStatement",
+                    "src": "556:1:4"
+                  }
+                ],
+                "id": 1185,
+                "name": "Block",
+                "src": "477:88:4"
+              }
+            ],
+            "id": 1186,
+            "name": "ModifierDefinition",
+            "src": "437:128:4"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "implemented": true,
+              "isConstructor": false,
+              "name": "setLendroidPriceFeedManager",
+              "payable": false,
+              "scope": 1265,
+              "stateMutability": "nonpayable",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_address",
+                      "scope": 1204,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "type": "address"
+                        },
+                        "id": 1187,
+                        "name": "ElementaryTypeName",
+                        "src": "742:7:4"
+                      }
+                    ],
+                    "id": 1188,
+                    "name": "VariableDeclaration",
+                    "src": "742:16:4"
+                  }
+                ],
+                "id": 1189,
+                "name": "ParameterList",
+                "src": "741:18:4"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "",
+                      "scope": 1204,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bool",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bool",
+                          "type": "bool"
+                        },
+                        "id": 1192,
+                        "name": "ElementaryTypeName",
+                        "src": "786:4:4"
+                      }
+                    ],
+                    "id": 1193,
+                    "name": "VariableDeclaration",
+                    "src": "786:4:4"
+                  }
+                ],
+                "id": 1194,
+                "name": "ParameterList",
+                "src": "785:6:4"
+              },
+              {
+                "attributes": {
+                  "arguments": [
+                    null
+                  ]
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "argumentTypes": null,
+                      "overloadedDeclarations": [
+                        null
+                      ],
+                      "referencedDeclaration": 712,
+                      "type": "modifier ()",
+                      "value": "onlyOwner"
+                    },
+                    "id": 1190,
+                    "name": "Identifier",
+                    "src": "767:9:4"
+                  }
+                ],
+                "id": 1191,
+                "name": "ModifierInvocation",
+                "src": "767:9:4"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "=",
+                          "type": "contract PriceFeedManager"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 1173,
+                              "type": "contract PriceFeedManager",
+                              "value": "LendroidPriceFeedManager"
+                            },
+                            "id": 1195,
+                            "name": "Identifier",
+                            "src": "803:24:4"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "isStructConstructorCall": false,
+                              "lValueRequested": false,
+                              "names": [
+                                null
+                              ],
+                              "type": "contract PriceFeedManager",
+                              "type_conversion": true
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": [
+                                    {
+                                      "typeIdentifier": "t_address",
+                                      "typeString": "address"
+                                    }
+                                  ],
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 1158,
+                                  "type": "type(contract PriceFeedManager)",
+                                  "value": "PriceFeedManager"
+                                },
+                                "id": 1196,
+                                "name": "Identifier",
+                                "src": "830:16:4"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 1188,
+                                  "type": "address",
+                                  "value": "_address"
+                                },
+                                "id": 1197,
+                                "name": "Identifier",
+                                "src": "847:8:4"
+                              }
+                            ],
+                            "id": 1198,
+                            "name": "FunctionCall",
+                            "src": "830:26:4"
+                          }
+                        ],
+                        "id": 1199,
+                        "name": "Assignment",
+                        "src": "803:53:4"
+                      }
+                    ],
+                    "id": 1200,
+                    "name": "ExpressionStatement",
+                    "src": "803:53:4"
+                  },
+                  {
+                    "attributes": {
+                      "functionReturnParameters": 1194
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "hexvalue": "74727565",
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "lValueRequested": false,
+                          "subdenomination": null,
+                          "token": "bool",
+                          "type": "bool",
+                          "value": "true"
+                        },
+                        "id": 1201,
+                        "name": "Literal",
+                        "src": "874:4:4"
+                      }
+                    ],
+                    "id": 1202,
+                    "name": "Return",
+                    "src": "867:11:4"
+                  }
+                ],
+                "id": 1203,
+                "name": "Block",
+                "src": "792:94:4"
+              }
+            ],
+            "id": 1204,
+            "name": "FunctionDefinition",
+            "src": "705:181:4"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "implemented": true,
+              "isConstructor": false,
+              "name": "setLendroidNetworkParameters",
+              "payable": false,
+              "scope": 1265,
+              "stateMutability": "nonpayable",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_address",
+                      "scope": 1222,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "type": "address"
+                        },
+                        "id": 1205,
+                        "name": "ElementaryTypeName",
+                        "src": "932:7:4"
+                      }
+                    ],
+                    "id": 1206,
+                    "name": "VariableDeclaration",
+                    "src": "932:16:4"
+                  }
+                ],
+                "id": 1207,
+                "name": "ParameterList",
+                "src": "931:18:4"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "",
+                      "scope": 1222,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bool",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bool",
+                          "type": "bool"
+                        },
+                        "id": 1210,
+                        "name": "ElementaryTypeName",
+                        "src": "976:4:4"
+                      }
+                    ],
+                    "id": 1211,
+                    "name": "VariableDeclaration",
+                    "src": "976:4:4"
+                  }
+                ],
+                "id": 1212,
+                "name": "ParameterList",
+                "src": "975:6:4"
+              },
+              {
+                "attributes": {
+                  "arguments": [
+                    null
+                  ]
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "argumentTypes": null,
+                      "overloadedDeclarations": [
+                        null
+                      ],
+                      "referencedDeclaration": 712,
+                      "type": "modifier ()",
+                      "value": "onlyOwner"
+                    },
+                    "id": 1208,
+                    "name": "Identifier",
+                    "src": "957:9:4"
+                  }
+                ],
+                "id": 1209,
+                "name": "ModifierInvocation",
+                "src": "957:9:4"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "=",
+                          "type": "contract NetworkParameters"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 1171,
+                              "type": "contract NetworkParameters",
+                              "value": "LendroidNetworkParameters"
+                            },
+                            "id": 1213,
+                            "name": "Identifier",
+                            "src": "993:25:4"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "isStructConstructorCall": false,
+                              "lValueRequested": false,
+                              "names": [
+                                null
+                              ],
+                              "type": "contract NetworkParameters",
+                              "type_conversion": true
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": [
+                                    {
+                                      "typeIdentifier": "t_address",
+                                      "typeString": "address"
+                                    }
+                                  ],
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 612,
+                                  "type": "type(contract NetworkParameters)",
+                                  "value": "NetworkParameters"
+                                },
+                                "id": 1214,
+                                "name": "Identifier",
+                                "src": "1021:17:4"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 1206,
+                                  "type": "address",
+                                  "value": "_address"
+                                },
+                                "id": 1215,
+                                "name": "Identifier",
+                                "src": "1039:8:4"
+                              }
+                            ],
+                            "id": 1216,
+                            "name": "FunctionCall",
+                            "src": "1021:27:4"
+                          }
+                        ],
+                        "id": 1217,
+                        "name": "Assignment",
+                        "src": "993:55:4"
+                      }
+                    ],
+                    "id": 1218,
+                    "name": "ExpressionStatement",
+                    "src": "993:55:4"
+                  },
+                  {
+                    "attributes": {
+                      "functionReturnParameters": 1212
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "hexvalue": "74727565",
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "lValueRequested": false,
+                          "subdenomination": null,
+                          "token": "bool",
+                          "type": "bool",
+                          "value": "true"
+                        },
+                        "id": 1219,
+                        "name": "Literal",
+                        "src": "1066:4:4"
+                      }
+                    ],
+                    "id": 1220,
+                    "name": "Return",
+                    "src": "1059:11:4"
+                  }
+                ],
+                "id": 1221,
+                "name": "Block",
+                "src": "982:96:4"
+              }
+            ],
+            "id": 1222,
+            "name": "FunctionDefinition",
+            "src": "894:184:4"
+          },
+          {
+            "attributes": {
+              "constant": true,
+              "implemented": true,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "getDecimalsBySymbol",
+              "payable": false,
+              "scope": 1265,
+              "stateMutability": "view",
+              "superFunction": null,
+              "visibility": "internal"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_symbol",
+                      "scope": 1235,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bytes32",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bytes32",
+                          "type": "bytes32"
+                        },
+                        "id": 1223,
+                        "name": "ElementaryTypeName",
+                        "src": "1115:7:4"
+                      }
+                    ],
+                    "id": 1224,
+                    "name": "VariableDeclaration",
+                    "src": "1115:15:4"
+                  }
+                ],
+                "id": 1225,
+                "name": "ParameterList",
+                "src": "1114:17:4"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "",
+                      "scope": 1235,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint",
+                          "type": "uint256"
+                        },
+                        "id": 1226,
+                        "name": "ElementaryTypeName",
+                        "src": "1159:4:4"
+                      }
+                    ],
+                    "id": 1227,
+                    "name": "VariableDeclaration",
+                    "src": "1159:4:4"
+                  }
+                ],
+                "id": 1228,
+                "name": "ParameterList",
+                "src": "1158:6:4"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "functionReturnParameters": 1228
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "isStructConstructorCall": false,
+                          "lValueRequested": false,
+                          "names": [
+                            null
+                          ],
+                          "type": "uint256",
+                          "type_conversion": false
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_bytes32",
+                                  "typeString": "bytes32"
+                                }
+                              ],
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "member_name": "getTokenDecimalsBySymbol",
+                              "referencedDeclaration": 602,
+                              "type": "function (bytes32) view external returns (uint256)"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 1171,
+                                  "type": "contract NetworkParameters",
+                                  "value": "LendroidNetworkParameters"
+                                },
+                                "id": 1229,
+                                "name": "Identifier",
+                                "src": "1183:25:4"
+                              }
+                            ],
+                            "id": 1230,
+                            "name": "MemberAccess",
+                            "src": "1183:50:4"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 1224,
+                              "type": "bytes32",
+                              "value": "_symbol"
+                            },
+                            "id": 1231,
+                            "name": "Identifier",
+                            "src": "1234:7:4"
+                          }
+                        ],
+                        "id": 1232,
+                        "name": "FunctionCall",
+                        "src": "1183:59:4"
+                      }
+                    ],
+                    "id": 1233,
+                    "name": "Return",
+                    "src": "1176:66:4"
+                  }
+                ],
+                "id": 1234,
+                "name": "Block",
+                "src": "1165:85:4"
+              }
+            ],
+            "id": 1235,
+            "name": "FunctionDefinition",
+            "src": "1086:164:4"
+          },
+          {
+            "attributes": {
+              "constant": true,
+              "implemented": true,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "getDecimalsByAddress",
+              "payable": false,
+              "scope": 1265,
+              "stateMutability": "view",
+              "superFunction": null,
+              "visibility": "internal"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_address",
+                      "scope": 1248,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "type": "address"
+                        },
+                        "id": 1236,
+                        "name": "ElementaryTypeName",
+                        "src": "1288:7:4"
+                      }
+                    ],
+                    "id": 1237,
+                    "name": "VariableDeclaration",
+                    "src": "1288:16:4"
+                  }
+                ],
+                "id": 1238,
+                "name": "ParameterList",
+                "src": "1287:18:4"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "",
+                      "scope": 1248,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint",
+                          "type": "uint256"
+                        },
+                        "id": 1239,
+                        "name": "ElementaryTypeName",
+                        "src": "1333:4:4"
+                      }
+                    ],
+                    "id": 1240,
+                    "name": "VariableDeclaration",
+                    "src": "1333:4:4"
+                  }
+                ],
+                "id": 1241,
+                "name": "ParameterList",
+                "src": "1332:6:4"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "functionReturnParameters": 1241
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "isStructConstructorCall": false,
+                          "lValueRequested": false,
+                          "names": [
+                            null
+                          ],
+                          "type": "uint256",
+                          "type_conversion": false
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_address",
+                                  "typeString": "address"
+                                }
+                              ],
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "member_name": "getTokenDecimalsByAddress",
+                              "referencedDeclaration": 583,
+                              "type": "function (address) view external returns (uint256)"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 1171,
+                                  "type": "contract NetworkParameters",
+                                  "value": "LendroidNetworkParameters"
+                                },
+                                "id": 1242,
+                                "name": "Identifier",
+                                "src": "1357:25:4"
+                              }
+                            ],
+                            "id": 1243,
+                            "name": "MemberAccess",
+                            "src": "1357:51:4"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 1237,
+                              "type": "address",
+                              "value": "_address"
+                            },
+                            "id": 1244,
+                            "name": "Identifier",
+                            "src": "1409:8:4"
+                          }
+                        ],
+                        "id": 1245,
+                        "name": "FunctionCall",
+                        "src": "1357:61:4"
+                      }
+                    ],
+                    "id": 1246,
+                    "name": "Return",
+                    "src": "1350:68:4"
+                  }
+                ],
+                "id": 1247,
+                "name": "Block",
+                "src": "1339:87:4"
+              }
+            ],
+            "id": 1248,
+            "name": "FunctionDefinition",
+            "src": "1258:168:4"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "implemented": true,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "updateLendroidPriceFeed",
+              "payable": false,
+              "scope": 1265,
+              "stateMutability": "nonpayable",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "_symbol",
+                      "scope": 1264,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bytes32",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bytes32",
+                          "type": "bytes32"
+                        },
+                        "id": 1249,
+                        "name": "ElementaryTypeName",
+                        "src": "1467:7:4"
+                      }
+                    ],
+                    "id": 1250,
+                    "name": "VariableDeclaration",
+                    "src": "1467:15:4"
+                  }
+                ],
+                "id": 1251,
+                "name": "ParameterList",
+                "src": "1466:17:4"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "",
+                      "scope": 1264,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bool",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bool",
+                          "type": "bool"
+                        },
+                        "id": 1252,
+                        "name": "ElementaryTypeName",
+                        "src": "1500:4:4"
+                      }
+                    ],
+                    "id": 1253,
+                    "name": "VariableDeclaration",
+                    "src": "1500:4:4"
+                  }
+                ],
+                "id": 1254,
+                "name": "ParameterList",
+                "src": "1499:6:4"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "functionReturnParameters": 1254
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "isStructConstructorCall": false,
+                          "lValueRequested": false,
+                          "names": [
+                            null
+                          ],
+                          "type": "bool",
+                          "type_conversion": false
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_bytes32",
+                                  "typeString": "bytes32"
+                                },
+                                {
+                                  "typeIdentifier": "t_uint256",
+                                  "typeString": "uint256"
+                                }
+                              ],
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "member_name": "updatePriceFeed",
+                              "referencedDeclaration": 950,
+                              "type": "function (bytes32,uint256) external returns (bool)"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 1173,
+                                  "type": "contract PriceFeedManager",
+                                  "value": "LendroidPriceFeedManager"
+                                },
+                                "id": 1255,
+                                "name": "Identifier",
+                                "src": "1523:24:4"
+                              }
+                            ],
+                            "id": 1256,
+                            "name": "MemberAccess",
+                            "src": "1523:40:4"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 1250,
+                              "type": "bytes32",
+                              "value": "_symbol"
+                            },
+                            "id": 1257,
+                            "name": "Identifier",
+                            "src": "1564:7:4"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "type": "uint256"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 1169,
+                                  "type": "mapping(bytes32 => uint256)",
+                                  "value": "tokenPrices"
+                                },
+                                "id": 1258,
+                                "name": "Identifier",
+                                "src": "1573:11:4"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 1250,
+                                  "type": "bytes32",
+                                  "value": "_symbol"
+                                },
+                                "id": 1259,
+                                "name": "Identifier",
+                                "src": "1585:7:4"
+                              }
+                            ],
+                            "id": 1260,
+                            "name": "IndexAccess",
+                            "src": "1573:20:4"
+                          }
+                        ],
+                        "id": 1261,
+                        "name": "FunctionCall",
+                        "src": "1523:71:4"
+                      }
+                    ],
+                    "id": 1262,
+                    "name": "Return",
+                    "src": "1516:78:4"
+                  }
+                ],
+                "id": 1263,
+                "name": "Block",
+                "src": "1505:97:4"
+              }
+            ],
+            "id": 1264,
+            "name": "FunctionDefinition",
+            "src": "1434:168:4"
+          }
+        ],
+        "id": 1265,
+        "name": "ContractDefinition",
+        "src": "240:1367:4"
+      }
+    ],
+    "id": 1266,
+    "name": "SourceUnit",
+    "src": "116:1491:4"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.18+commit.9cf6e910.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "1.0.1",
+  "updatedAt": "2017-11-03T09:45:30.477Z"
+}

@@ -2,6 +2,8 @@ pragma solidity 0.4.18;
 
 import "./Ownable.sol";
 
+// FOR DEMO
+
 contract NetworkParameters is Ownable {
     bool public tradingAllowed;
     uint public maximumAllowedMarginAccounts;
@@ -13,8 +15,11 @@ contract NetworkParameters is Ownable {
     bytes32 internal TOKEN_TYPE_COLLATERAL = "collateral";
     bytes32 internal TOKEN_TYPE_TRADING = "trading";
     
-    mapping (bytes32 => mapping (address => TokenMetadata)) public tokens;
-    mapping (bytes32 => address) tokenBySymbol;
+    mapping (address => TokenMetadata) public tokens;
+    mapping (bytes32 => bool) public lendingTokens;
+    mapping (bytes32 => bool) public collateralTokens;
+    mapping (bytes32 => bool) public tradingTokens;
+    mapping (bytes32 => address) public tokenBySymbol;
 
     address[] public tokenAddresses;
     
@@ -26,7 +31,6 @@ contract NetworkParameters is Ownable {
         uint decimals,
         Status status,
         uint value,
-        bytes32 tokenType,
         bytes32 action
     );
     
@@ -44,18 +48,18 @@ contract NetworkParameters is Ownable {
         uint value;
     }
 
-    modifier tokenExists(address _token, bytes32 _type) {
-        require(tokens[_type][_token].status == Status.ACTIVE);
+    modifier tokenExists(address _token) {
+        require(tokens[_token].status == Status.ACTIVE);
         _;
     }
 
-    modifier tokenDoesNotExist(address _token, bytes32 _type) {
-        require(tokens[_type][_token].status != Status.ACTIVE);
+    modifier tokenDoesNotExist(address _token) {
+        require(tokens[_token].status != Status.ACTIVE);
         _;
     }
 
-    modifier symbolExists(bytes32 _symbol, bytes32 _type) {
-        require(tokens[_type][tokenBySymbol[_symbol]].status == Status.ACTIVE);
+    modifier symbolExists(bytes32 _symbol) {
+        require(tokens[tokenBySymbol[_symbol]].status == Status.ACTIVE);
         _;
     }
 
@@ -72,13 +76,13 @@ contract NetworkParameters is Ownable {
         liquidationMargin = 2000;
     }
 
-    function isValidSymbol(bytes32 _symbol, bytes32 _type)
+    function isValidSymbol(bytes32 _symbol)
         public
         constant
-        symbolExists(_symbol, _type) 
+        symbolExists(_symbol) 
         returns (bool)
     {
-        if (tokens[_type][tokenBySymbol[_symbol]].status == Status.ACTIVE) {
+        if (tokens[tokenBySymbol[_symbol]].status == Status.ACTIVE) {
             return true;
         }
         else {
@@ -92,18 +96,19 @@ contract NetworkParameters is Ownable {
     /// @param _symbol Symbol for new token.
     /// @param _decimals Number of decimals, divisibility of new token.
     function addToken(
-        address _token,
-        bytes32 _name,
-        bytes32 _symbol,
-        uint _decimals,
-        uint _value,
-        bytes32 _type)
+            address _token,
+            bytes32 _name,
+            bytes32 _symbol,
+            uint _decimals,
+            uint _value,
+            bytes32[3] supportedTypes
+        )
         public
         onlyOwner
-        tokenDoesNotExist(_token,_type)
+        tokenDoesNotExist(_token)
         addressNotNull(_token)
     {
-        tokens[bytes32(_type)][_token] = TokenMetadata({
+        tokens[_token] = TokenMetadata({
             token: _token,
             name: _name,
             symbol: _symbol,
@@ -114,15 +119,14 @@ contract NetworkParameters is Ownable {
         tokenAddresses.push(_token);
         tokenBySymbol[_symbol] = _token;
         
-        bytes32 _action = "";
-        if (_type == TOKEN_TYPE_LENDING) {
-            _action = "lending token added";
+        if (supportedTypes[0] == TOKEN_TYPE_LENDING) {
+            lendingTokens[_symbol] = true;
         }
-        if (_type == TOKEN_TYPE_COLLATERAL) {
-            _action = "collateral token added";
+        if (supportedTypes[1] == TOKEN_TYPE_COLLATERAL) {
+            collateralTokens[_symbol] = true;
         }
-        if (_type == TOKEN_TYPE_TRADING) {
-            _action = "trading token added";
+        if (supportedTypes[2] == TOKEN_TYPE_TRADING) {
+            tradingTokens[_symbol] = true;
         }
         LogTokenUpdated(
             _token,
@@ -131,34 +135,69 @@ contract NetworkParameters is Ownable {
             _decimals,
             Status.ACTIVE,
             _value,
-            _type,
-            _action
+            "token added"
         );
+    }
+
+    function addSupport(
+            bytes32 _symbol,
+            bytes32[3] _tokenTypes
+        )
+        public
+        onlyOwner
+        symbolExists(_symbol) 
+        returns (bool)
+    {
+        if (_tokenTypes[0] == TOKEN_TYPE_LENDING) {
+            lendingTokens[_symbol] = true;
+        }
+        if (_tokenTypes[1] == TOKEN_TYPE_COLLATERAL) {
+            collateralTokens[_symbol] = true;
+        }
+        if (_tokenTypes[2] == TOKEN_TYPE_TRADING) {
+            tradingTokens[_symbol] = true;
+        }
+        return true;
+    }
+
+    function removeSupport(
+            bytes32 _symbol,
+            bytes32[3] _tokenTypes
+        )
+        public
+        onlyOwner
+        symbolExists(_symbol) 
+        returns (bool)
+    {
+        if (_tokenTypes[0] == TOKEN_TYPE_LENDING) {
+            lendingTokens[_symbol] = false;
+        }
+        if (_tokenTypes[1] == TOKEN_TYPE_COLLATERAL) {
+            collateralTokens[_symbol] = false;
+        }
+        if (_tokenTypes[2] == TOKEN_TYPE_TRADING) {
+            tradingTokens[_symbol] = false;
+        }
+        return true;
     }
 
     /// @dev Allows owner to remove an existing token from the registry.
     /// @param _token Address of existing token.
-    function removeToken(bytes32 _type, address _token, uint _index)
+    function removeToken(
+            address _token,
+            uint _index
+        )
         public
         onlyOwner
-        tokenExists(_token, _type)
+        tokenExists(_token)
     {
         require(tokenAddresses[_index] == _token);
 
         tokenAddresses[_index] = tokenAddresses[tokenAddresses.length - 1];
         tokenAddresses.length -= 1;
 
-        TokenMetadata storage token = tokens[_type][_token];
-        bytes32 _action = "";
-        if (_type == TOKEN_TYPE_LENDING) {
-            _action = "lending token removed";
-        }
-        if (_type == TOKEN_TYPE_COLLATERAL) {
-            _action = "collateral token removed";
-        }
-        if (_type == TOKEN_TYPE_TRADING) {
-            _action = "trading token removed";
-        }
+        TokenMetadata storage token = tokens[_token];
+        
         LogTokenUpdated(
             token.token,
             token.name,
@@ -166,17 +205,20 @@ contract NetworkParameters is Ownable {
             token.decimals,
             token.status,
             token.value,
-            _type,
-            _action
+            "token removed"
         );
         delete tokenBySymbol[token.symbol];
-        delete tokens[_type][_token];
+        delete lendingTokens[token.symbol];
+        delete collateralTokens[token.symbol];
+        delete tradingTokens[token.symbol];
+        delete tokens[_token];
+        
     }
 
     /// @dev Provides a registered token's metadata, looked up by address.
     /// @param _token Address of registered token.
     /// @return Token metadata.
-    function getTokenMetaData(address _token, bytes32 _type)
+    function getTokenMetaData(address _token)
         public
         constant
         returns (
@@ -188,7 +230,7 @@ contract NetworkParameters is Ownable {
             uint     //value
         )
     {
-        TokenMetadata memory token = tokens[_type][_token];
+        TokenMetadata memory token = tokens[_token];
         return (
             token.token,
             token.name,
@@ -202,7 +244,7 @@ contract NetworkParameters is Ownable {
     /// @dev Provides a registered token's metadata, looked up by symbol.
     /// @param _symbol Symbol of registered token.
     /// @return Token metadata.
-    function getTokenBySymbol(bytes32 _symbol, bytes32 _type)
+    function getTokenBySymbol(bytes32 _symbol)
         public
         constant
         returns (
@@ -215,18 +257,30 @@ contract NetworkParameters is Ownable {
             )
     {
         address _token = tokenBySymbol[_symbol];
-        return getTokenMetaData(_token, _type);
+        return getTokenMetaData(_token);
     }
 
     /// @dev Provides a registered token's decimals, looked up by address.
     /// @param _address Address of registered token.
     /// @return Token decimals.
-    function getTokenDecimalsByAddress(address _address, bytes32 _type)
+    function getTokenDecimalsByAddress(address _address)
         public
         constant
         returns (uint)
     {
-        TokenMetadata memory token = tokens[_type][_address];
+        TokenMetadata memory token = tokens[_address];
+        return token.decimals;
+    }
+
+    /// @dev Provides a registered token's decimals, looked up by symbol.
+    /// @param _symbol Symbol of registered token.
+    /// @return Token decimals.
+    function getTokenDecimalsBySymbol(bytes32 _symbol)
+        public
+        constant
+        returns (uint)
+    {
+        TokenMetadata memory token = tokens[tokenBySymbol[_symbol]];
         return token.decimals;
     }
 
