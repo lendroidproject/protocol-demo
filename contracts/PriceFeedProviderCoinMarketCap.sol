@@ -10,7 +10,7 @@ import "./Ownable.sol";
 import "./PriceFeedProviderBase.sol";
 import "./PriceFeedManager.sol";
 
-contract PriceFeedProviderCoinMarketCap is PriceFeedProviderBase, usingOraclize {
+contract PriceFeedProviderCoinMarketCap is PriceFeedProviderBase, usingOraclize, Ownable {
 
     mapping (bytes32 => string) tokenIds;
     mapping (bytes32 => bytes32) queuedTokens;

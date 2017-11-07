@@ -5,12 +5,12 @@
 */
 
 pragma solidity ^0.4.18;
-import "./Ownable.sol";
+import "./stop.sol";
 import "./NetworkParameters.sol";
 import "./PriceFeedManager.sol";
 
 
-contract PriceFeedProviderBase is Ownable {
+contract PriceFeedProviderBase is DSStop {
 
     mapping (bytes32 => uint) tokenPrices;
 
@@ -24,12 +24,20 @@ contract PriceFeedProviderBase is Ownable {
 
     /// @dev Allows owner to set the PriceFeedManager contract.
     /// @param _address Address of the PriceFeedManager contract.
-    function setLendroidPriceFeedManager(address _address) public onlyOwner returns (bool) {
+    function setLendroidPriceFeedManager(address _address) public
+        stoppable
+        auth
+        returns (bool)
+    {
         LendroidPriceFeedManager = PriceFeedManager(_address);
         return true;
     }
 
-    function setLendroidNetworkParameters(address _address) public onlyOwner returns (bool) {
+    function setLendroidNetworkParameters(address _address) public
+        stoppable
+        auth
+        returns (bool)
+    {
         LendroidNetworkParameters = NetworkParameters(_address);
         return true;
     }

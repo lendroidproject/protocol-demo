@@ -1,11 +1,15 @@
 pragma solidity ^0.4.18;
-import "./Ownable.sol";
+import "./stop.sol";
 import "./NetworkParameters.sol";
 import "./Oracle.sol";
 
+
 /// @title Contract that contains supported Oracle. Open to Governance.
 /// @author Lendroid - <vii@lendroid.io>, Inspired from 0xProject
-contract PriceFeedManager is Ownable {
+contract PriceFeedManager is DSStop {
+    
+    NetworkParameters LendroidNetworkParameters;
+    Oracle LendroidOracle;
     
     event LogAddProvider(
         address indexed provider,
@@ -44,9 +48,6 @@ contract PriceFeedManager is Ownable {
     mapping (bytes32 => address) providerByName;
     bytes32[] public providerNames;
 
-    NetworkParameters LendroidNetworkParameters;
-    Oracle LendroidOracle;
-
     modifier nameExists(bytes32 _name) {
         require(providerByName[_name] != address(0));
         _;
@@ -60,6 +61,30 @@ contract PriceFeedManager is Ownable {
     modifier addressNotNull(address _address) {
         require(_address != address(0));
         _;
+    }
+
+    /// @dev Allows owner to set the NetworkParameters contract.
+    /// @param _address Address of the NetworkParameters contract.
+    function setLendroidNetworkParameters(address _address)
+        public 
+        stoppable
+        auth
+        returns (bool) 
+    {
+        LendroidNetworkParameters = NetworkParameters(_address);
+        return true;
+    }
+
+    /// @dev Allows owner to set the Oracle contract.
+    /// @param _address Address of the Oracle contract.
+    function setLendroidOracle(address _address) 
+        public 
+        stoppable
+        auth
+        returns (bool) 
+    {
+        LendroidOracle = Oracle(_address);
+        return true;
     }
 
     function isValidProvider(
@@ -77,30 +102,15 @@ contract PriceFeedManager is Ownable {
         }
     }
 
-    /// @dev Allows owner to set the NetworkParameters contract.
-    /// @param _address Address of the NetworkParameters contract.
-    function setLendroidNetworkParameters(address _address) public onlyOwner returns (bool) {
-        LendroidNetworkParameters = NetworkParameters(_address);
-        return true;
-    }
-
-    /// @dev Allows owner to set the Oracle contract.
-    /// @param _address Address of the Oracle contract.
-    function setLendroidOracle(address _address) public onlyOwner returns (bool) {
-        LendroidOracle = Oracle(_address);
-        return true;
-    }
-
     /// @dev Allows PriceFeedProvider contract to update the token price.
     /// @param _symbol Token symbol of type bytes32.
     /// @param _price price value of type uint.
     function updatePriceFeed(bytes32 _symbol, uint _price) 
         public
+        stoppable
         returns (bool) {
         require(isValidProvider(msg.sender));
-        address symbolAddress = LendroidNetworkParameters.tokenBySymbol(_symbol);
-        require(symbolAddress != address(0));
-        require(!LendroidOracle.updateTokenPrice(_symbol, _price));
+        require(LendroidOracle.updateTokenPrice(_symbol, _price));
         return true;
     }
 
@@ -111,9 +121,10 @@ contract PriceFeedManager is Ownable {
         address _provider,
         bytes32 _name)
         public
-        onlyOwner
         addressNotNull(_provider)
         nameDoesNotExist(_name)
+        stoppable
+        auth// owner
     {
         providers[_provider] = ProviderMetaData({
             provider: _provider,
@@ -132,8 +143,9 @@ contract PriceFeedManager is Ownable {
     /// @param _name Name of existing provider.
     function removeProvider(bytes32 _name, uint _index)
         public
-        onlyOwner
         nameExists(_name)
+        stoppable
+        auth
     {
         require(providerNames[_index] == _name);
 
@@ -153,8 +165,9 @@ contract PriceFeedManager is Ownable {
     /// @param _name Name of existing provider.
     function deactivateProvider(bytes32 _name)
         public
-        onlyOwner
         nameExists(_name)
+        stoppable
+        auth
         returns (bool)
     {
         ProviderMetaData storage provider = providers[providerByName[_name]];
@@ -170,8 +183,9 @@ contract PriceFeedManager is Ownable {
     /// @param _name Name of existing provider.
     function activateProvider(bytes32 _name)
         public
-        onlyOwner
         nameExists(_name)
+        stoppable
+        auth
     {
         ProviderMetaData storage provider = providers[providerByName[_name]];
         LogActivateProvider(

@@ -5,31 +5,16 @@
 */
 
 pragma solidity ^0.4.18;
-import "./Ownable.sol";
-import "./PriceFeedManager.sol";
+import "./stop.sol";
 
-contract Oracle is Ownable {
+contract Oracle is DSStop {
 
     mapping (bytes32 => uint) tokenPrices;
-    
-    PriceFeedManager LendroidPriceFeedManager;
-
-    // @dev Throws if called by any account other than the owner.
-    modifier onlyLendroidPriceFeedManager() {
-        require(msg.sender == address(LendroidPriceFeedManager));
-        _;
-    }
-
-    /// @dev Allows owner to set the PriceFeedManager contract.
-    /// @param _address Address of the PriceFeedManager contract.
-    function setLendroidPriceFeedManager(address _address) public onlyOwner returns (bool) {
-        LendroidPriceFeedManager = PriceFeedManager(_address);
-        return true;
-    }
 
     function updateTokenPrice(bytes32 _symbol, uint _price) 
         public 
-        onlyLendroidPriceFeedManager
+        stoppable
+        auth// pricefeedmanager
         returns (bool)
     {
         tokenPrices[_symbol] = _price;

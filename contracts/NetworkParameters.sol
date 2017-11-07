@@ -1,15 +1,19 @@
 pragma solidity 0.4.18;
 
-import "./Ownable.sol";
+import "./stop.sol";
 
 // FOR DEMO
 
-contract NetworkParameters is Ownable {
+contract NetworkParameters is DSStop {
     bool public tradingAllowed;
     uint public maximumAllowedMarginAccounts;
     uint public decimals;
     uint public initialMargin;
     uint public liquidationMargin;
+    
+    uint public interestRatePerDay;
+    uint public maxLoanPeriodDays;
+    uint public gracePeriodDays;
     
     bytes32 internal TOKEN_TYPE_LENDING = "lending";
     bytes32 internal TOKEN_TYPE_COLLATERAL = "collateral";
@@ -68,18 +72,23 @@ contract NetworkParameters is Ownable {
         _;
     }
 
-    function NetworkParameters() {
+    function NetworkParameters() public {
+        
         tradingAllowed = true;
         maximumAllowedMarginAccounts = 50;
         decimals = 4;
         initialMargin = 4000;
         liquidationMargin = 2000;
+        
+        interestRatePerDay = 100;
+        maxLoanPeriodDays = 30 days;
+        gracePeriodDays = 100 days;
     }
 
     function isValidSymbol(bytes32 _symbol)
         public
         constant
-        symbolExists(_symbol) 
+        symbolExists(_symbol)
         returns (bool)
     {
         if (tokens[tokenBySymbol[_symbol]].status == Status.ACTIVE) {
@@ -104,9 +113,10 @@ contract NetworkParameters is Ownable {
             bytes32[3] supportedTypes
         )
         public
-        onlyOwner
         tokenDoesNotExist(_token)
         addressNotNull(_token)
+        stoppable
+        auth
     {
         tokens[_token] = TokenMetadata({
             token: _token,
@@ -139,13 +149,26 @@ contract NetworkParameters is Ownable {
         );
     }
 
+    /// @dev Provides a registered token's address, looked up by symbol.
+    /// Useful when called by an external contract
+    /// @param _symbol Symbol of registered token.
+    /// @return Token address.
+    function getTokenAddressBySymbol(bytes32 _symbol)
+        public
+        constant
+        returns (address)
+    {
+        return tokenBySymbol[_symbol];
+    }
+
     function addSupport(
             bytes32 _symbol,
             bytes32[3] _tokenTypes
         )
         public
-        onlyOwner
         symbolExists(_symbol) 
+        stoppable
+        auth
         returns (bool)
     {
         if (_tokenTypes[0] == TOKEN_TYPE_LENDING) {
@@ -165,8 +188,9 @@ contract NetworkParameters is Ownable {
             bytes32[3] _tokenTypes
         )
         public
-        onlyOwner
         symbolExists(_symbol) 
+        stoppable
+        auth
         returns (bool)
     {
         if (_tokenTypes[0] == TOKEN_TYPE_LENDING) {
@@ -188,8 +212,9 @@ contract NetworkParameters is Ownable {
             uint _index
         )
         public
-        onlyOwner
         tokenExists(_token)
+        stoppable
+        auth
     {
         require(tokenAddresses[_index] == _token);
 
@@ -284,6 +309,18 @@ contract NetworkParameters is Ownable {
         return token.decimals;
     }
 
+    /// @dev Provides a registered token's symbol, looked up by address.
+    /// @param _address Address of registered token.
+    /// @return Token symbol.
+    function getTokenSymbolByAddress(address _address)
+        public
+        constant
+        returns (bytes32)
+    {
+        TokenMetadata memory token = tokens[_address];
+        return token.symbol;
+    }
+
     /// @dev Returns an array containing all token addresses.
     /// @return Array of token addresses.
     function getTokenAddresses()
@@ -292,6 +329,47 @@ contract NetworkParameters is Ownable {
         returns (address[])
     {
         return tokenAddresses;
+    }
+
+    /**
+        @notice allows the current owner to change the daily interest rate of the contract.
+        @param _i integer value as the daily interest rate
+        @return true an acknowledgement that the daily interest rate was set by the owner
+    */
+    function setInterestRatePerDay(uint _i) public auth returns (bool) {
+        interestRatePerDay = _i;
+        return true;
+    }
+
+    /**
+        @notice allows the current owner to change the daily interest rate.
+        @param _d integer value as the daily interest rate
+        @return true an acknowledgement that the daily interest rate was set by the owner
+    */
+    function setMaxLoanPeriodDays(uint _d) public auth returns (bool) {
+        maxLoanPeriodDays = _d;
+        return true;
+    }
+
+    /**
+        @notice allows the current owner to change the grace period.
+        @param _d integer value as the grace period
+        @return true an acknowledgement that the grace period was set by the owner
+    */
+    function setGracePeriodDays(uint _d) public auth returns (bool) {
+        gracePeriodDays = _d;
+        return true;
+    }
+
+    /**
+        @notice allows the current owner to change the initialMargin.
+        @param _margin integer value as the initialMargin
+        @return true an acknowledgement that the initialMargin was set by the owner
+    */
+    function setLendableLevel(uint _margin) public auth returns (bool) {
+        require(_margin > (10 ** decimals));
+        initialMargin = _margin;
+        return true;
     }
 
 }
