@@ -1,15 +1,16 @@
 pragma solidity 0.4.18;
 
+import "./math.sol";
 import "./stop.sol";
 
 // FOR DEMO
 
-contract NetworkParameters is DSStop {
+contract NetworkParameters is DSMath, DSStop {
     bool public tradingAllowed;
     uint public maximumAllowedMarginAccounts;
     uint public decimals;
-    uint public initialMargin;
-    uint public liquidationMargin;
+    uint public initialMarginPercentage;
+    uint public liquidationMarginPercentage;
     
     uint public interestRatePerDay;
     uint public maxLoanPeriodDays;
@@ -76,13 +77,29 @@ contract NetworkParameters is DSStop {
         
         tradingAllowed = true;
         maximumAllowedMarginAccounts = 50;
-        decimals = 4;
-        initialMargin = 4000;
-        liquidationMargin = 2000;
+        decimals = 18;
+        initialMarginPercentage = 40;// 1 / 40% = 2.5 times collateral
+        liquidationMarginPercentage = 20;// 1 / 20% = 5 times collateral
         
         interestRatePerDay = 100;
         maxLoanPeriodDays = 30 days;
         gracePeriodDays = 100 days;
+    }
+
+    function initialMarginLevel()
+        public
+        constant
+        returns (uint)
+    {
+        return mul(wdiv(100, initialMarginPercentage), 10 ** decimals);
+    }
+
+    function liquidationMarginLevel()
+        public
+        constant
+        returns (uint)
+    {
+        return mul(wdiv(100, liquidationMarginPercentage), 10 ** decimals);
     }
 
     function isValidSymbol(bytes32 _symbol)
@@ -362,14 +379,24 @@ contract NetworkParameters is DSStop {
     }
 
     /**
-        @notice allows the current owner to change the initialMargin.
-        @param _margin integer value as the initialMargin
-        @return true an acknowledgement that the initialMargin was set by the owner
+        @notice allows the current owner to change the initialMarginPercentage.
+        @param _percentage integer value as the initialMarginPercentage
+        @return true an acknowledgement that the initialMarginPercentage was set by the owner
     */
-    function setLendableLevel(uint _margin) public auth returns (bool) {
-        require(_margin > (10 ** decimals));
-        initialMargin = _margin;
+    function setInitialMarginPercentage(uint _percentage) public auth returns (bool) {
+        require(_percentage <= 100);
+        initialMarginPercentage = _percentage;
         return true;
     }
 
+    /**
+        @notice allows the current owner to change the liquidationMarginPercentage.
+        @param _percentage integer value as the liquidationMarginPercentage
+        @return true an acknowledgement that the liquidationMarginPercentage was set by the owner
+    */
+    function setLiquidationMarginPercentage(uint _percentage) public auth returns (bool) {
+        require(_percentage <= 100);
+        liquidationMarginPercentage = _percentage;
+        return true;
+    }
 }

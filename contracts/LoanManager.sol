@@ -87,13 +87,14 @@ contract LoanManager is DSMath, DSStop {
         stoppable
         returns (bool) 
     {
-        var (_encumbered, _lockedAmount) = LendroidWallet.encumberCollateral(msg.sender);
-        assert(_encumbered);
+        // TODO: Check if borrower account is healthy
+        var _loanAmount = LendroidWallet.getMaximumBorrowableAmount(msg.sender);
+        require(LendroidWallet.encumberCollateral(msg.sender, _loanAmount));
         // Set loan fields and save loan
         Loan memory loan;
         loan.timestamp = now;
         loan.borrower = msg.sender;
-        loan.amount = percentOf(_lockedAmount, LendroidNetworkParameters.initialMargin());
+        loan.amount = _loanAmount;
         loan.expiresOn = now + LendroidNetworkParameters.maxLoanPeriodDays();
         loan.interestRate = LendroidNetworkParameters.interestRatePerDay();
         loan.status = Status.ACTIVE;
@@ -121,10 +122,12 @@ contract LoanManager is DSMath, DSStop {
         @return true the loan was successfully closed
     */
     function closeLoan(bytes32 _loanHash) 
+        public
         payable 
         stoppable
         returns (bool) 
     {
+        // TODO: Check if borrower account is healthy
         // Get Active loan based on hash
         Loan storage activeLoan = loans[_loanHash];
         // Validations
@@ -140,7 +143,11 @@ contract LoanManager is DSMath, DSStop {
         activeLoan.status = Status.CLOSED;
         activeLoan.amountPaid = msg.value;
         activeLoan.lastUpdated = now;
-        //require(collateralManager.unencumberCollateral(activeLoan.ensDomainHash, msg.sender));
+        require(LendroidWallet.unEncumberCollateral(
+            msg.sender,
+            activeLoan.amount,
+            activeLoan.amountPaid
+        ));
         LogLoanUpdated(
             activeLoan.loanHash,  // The Hash of the Loan
             msg.sender,   // The address that caused the action
@@ -177,10 +184,10 @@ contract LoanManager is DSMath, DSStop {
         @param _loanHash the hash of the loan whose amount is owed
         @return uint the owed amount
     */
-    function amountOwed(bytes32 _loanHash) constant returns (uint) {
+    function amountOwed(bytes32 _loanHash) public stoppable constant returns (uint) {
         Loan storage activeLoan = loans[_loanHash];
         uint daysSinceLoan = wdiv(now - activeLoan.timestamp, 86400);
-        uint interestAccrued = mul(percentOf(activeLoan.amount , LendroidNetworkParameters.interestRatePerDay()), daysSinceLoan);
+        uint interestAccrued = mul(percentOf(activeLoan.amount, LendroidNetworkParameters.interestRatePerDay()), daysSinceLoan);
         if (activeLoan.expiresOn < now) {
             return 0;
         }
