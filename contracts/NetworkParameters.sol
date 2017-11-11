@@ -12,7 +12,8 @@ contract NetworkParameters is DSMath, DSStop {
     uint public initialMarginPercentage;
     uint public liquidationMarginPercentage;
     
-    uint public interestRatePerDay;
+    uint public interestRatePercentage;
+    bytes32 public interestRateInterval;
     uint public maxLoanPeriodDays;
     uint public gracePeriodDays;
     
@@ -81,25 +82,10 @@ contract NetworkParameters is DSMath, DSStop {
         initialMarginPercentage = 40;// 1 / 40% = 2.5 times collateral
         liquidationMarginPercentage = 20;// 1 / 20% = 5 times collateral
         
-        interestRatePerDay = 100;
+        interestRatePercentage = 10;
+        interestRateInterval = "day";
         maxLoanPeriodDays = 30 days;
         gracePeriodDays = 100 days;
-    }
-
-    function initialMarginLevel()
-        public
-        constant
-        returns (uint)
-    {
-        return mul(wdiv(100, initialMarginPercentage), 10 ** decimals);
-    }
-
-    function liquidationMarginLevel()
-        public
-        constant
-        returns (uint)
-    {
-        return mul(wdiv(100, liquidationMarginPercentage), 10 ** decimals);
     }
 
     function isValidSymbol(bytes32 _symbol)
@@ -127,7 +113,9 @@ contract NetworkParameters is DSMath, DSStop {
             bytes32 _symbol,
             uint _decimals,
             uint _value,
-            bytes32[3] supportedTypes
+            bool isLendingToken,
+            bool isCollateralToken,
+            bool isTradingToken
         )
         public
         tokenDoesNotExist(_token)
@@ -146,13 +134,13 @@ contract NetworkParameters is DSMath, DSStop {
         tokenAddresses.push(_token);
         tokenBySymbol[_symbol] = _token;
         
-        if (supportedTypes[0] == TOKEN_TYPE_LENDING) {
+        if (isLendingToken) {
             lendingTokens[_symbol] = true;
         }
-        if (supportedTypes[1] == TOKEN_TYPE_COLLATERAL) {
+        if (isCollateralToken) {
             collateralTokens[_symbol] = true;
         }
-        if (supportedTypes[2] == TOKEN_TYPE_TRADING) {
+        if (isTradingToken) {
             tradingTokens[_symbol] = true;
         }
         LogTokenUpdated(
@@ -164,18 +152,6 @@ contract NetworkParameters is DSMath, DSStop {
             _value,
             "token added"
         );
-    }
-
-    /// @dev Provides a registered token's address, looked up by symbol.
-    /// Useful when called by an external contract
-    /// @param _symbol Symbol of registered token.
-    /// @return Token address.
-    function getTokenAddressBySymbol(bytes32 _symbol)
-        public
-        constant
-        returns (address)
-    {
-        return tokenBySymbol[_symbol];
     }
 
     function addSupport(
@@ -326,6 +302,19 @@ contract NetworkParameters is DSMath, DSStop {
         return token.decimals;
     }
 
+    /// @dev Provides a registered token's address, looked up by symbol.
+    /// Useful when called by an external contract
+    /// @param _symbol Symbol of registered token.
+    /// @return Token address.
+    function getTokenAddressBySymbol(bytes32 _symbol)
+        public
+        constant
+        returns (address)
+    {
+        return tokenBySymbol[_symbol];
+    }
+
+
     /// @dev Provides a registered token's symbol, looked up by address.
     /// @param _address Address of registered token.
     /// @return Token symbol.
@@ -348,13 +337,47 @@ contract NetworkParameters is DSMath, DSStop {
         return tokenAddresses;
     }
 
+    function initialMarginLevel()
+        public
+        constant
+        returns (uint)
+    {
+        return wmul(wdiv(100, initialMarginPercentage), 10 ** decimals);
+    }
+
+    function liquidationMarginLevel()
+        public
+        constant
+        returns (uint)
+    {
+        return wmul(wdiv(100, liquidationMarginPercentage), 10 ** decimals);
+    }
+
+    function interestRate()
+        public
+        constant
+        returns (uint)
+    {
+        return wmul(wdiv(interestRatePercentage, 100), 10 ** decimals);
+    }
+
     /**
-        @notice allows the current owner to change the daily interest rate of the contract.
-        @param _i integer value as the daily interest rate
-        @return true an acknowledgement that the daily interest rate was set by the owner
+        @notice allows the current owner to change the interestRateInterval.
+        @param _i bytes32 value as the interestRateInterval
+        @return true an acknowledgement that the interestRateInterval was set by the owner
     */
-    function setInterestRatePerDay(uint _i) public auth returns (bool) {
-        interestRatePerDay = _i;
+    function setInterestRateInterval(bytes32 _i) public auth returns (bool) {
+        interestRateInterval = _i;
+        return true;
+    }
+
+    /**
+        @notice allows the current owner to change the interestRatePercentage.
+        @param _i integer value as the interestRatePercentage
+        @return true an acknowledgement that the interestRatePercentage was set by the owner
+    */
+    function setInterestRatePercentage(uint _i) public auth returns (bool) {
+        interestRatePercentage = _i;
         return true;
     }
 

@@ -42,8 +42,17 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         auth
         returns (bool)
     {
-        add(fundingBalances[address(this)], msg.value);
+        fundingBalances[address(this)] = add(fundingBalances[address(this)], msg.value);
         return true;
+    }
+    
+    function getFundingBalance() 
+        public
+        stoppable
+        constant
+        returns (uint)
+    {
+        return fundingBalances[address(this)];
     }
     
     function depositCollateral() 
@@ -55,8 +64,8 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         
         address _token = LendroidNetworkParameters.getTokenAddressBySymbol("W-ETH");
         // pull
-        pull(DSToken(_token), msg.sender, msg.value);
-        add(collateralBalances[msg.sender], msg.value);
+        // pull(DSToken(_token), msg.sender, msg.value);
+        collateralBalances[msg.sender] = add(collateralBalances[msg.sender], msg.value);
         return true;
     }
     
@@ -67,11 +76,14 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         returns (bool)
     {
         // TODO: Verify margin account is healthy
-        require(_amount >= collateralBalances[msg.sender]);
-        sub(collateralBalances[msg.sender], _amount);
+        require(
+            (_amount > 0) &&
+            (_amount <= getMaximumWithdrawableAmount(msg.sender))
+        );
+        collateralBalances[msg.sender] = sub(collateralBalances[msg.sender], _amount);
         address _token = LendroidNetworkParameters.getTokenAddressBySymbol("W-ETH");
         // push
-        push(DSToken(_token), msg.sender, _amount);
+        // push(DSToken(_token), msg.sender, _amount);
         msg.sender.transfer(_amount);
         return true;
     }
@@ -87,6 +99,17 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         return collateralBalances[_address];
     }
 
+    function getMarginAccountBalance(
+            address _address
+        ) 
+        public
+        stoppable
+        constant
+        returns (uint)
+    {
+        return marginAccountBalances[_address];
+    }
+
     // Get maximum amount that can be borrowed
     function getMaximumBorrowableAmount(
             address _address
@@ -96,7 +119,37 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         constant
         returns (uint)
     {
-        return mul(LendroidNetworkParameters.initialMarginLevel(), getCollateralBalance(_address));
+        return sub(
+            wmul(
+                wdiv(
+                    LendroidNetworkParameters.initialMarginLevel(),
+                    10 ** LendroidNetworkParameters.decimals()
+                ),
+                getCollateralBalance(_address)
+            ),
+            getMarginAccountBalance(_address)
+        );
+    }
+    
+    // Get maximum amount that can be borrowed
+    function getMaximumWithdrawableAmount(
+            address _address
+        )
+        public
+        stoppable
+        constant
+        returns (uint)
+    {
+        return sub(
+            getCollateralBalance(_address),
+            wdiv(
+                getMarginAccountBalance(_address),
+                wdiv(
+                    LendroidNetworkParameters.initialMarginLevel(),
+                    10 ** LendroidNetworkParameters.decimals()
+                )
+            )
+        );
     }
 
     // authorized call to reshuffle balances
@@ -106,18 +159,17 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         )
         public
         stoppable
-        auth// loanmanager
-        view
+        // auth// loanmanager
         returns (bool)
     {
         // Check eligibility
         // lender has enough funds to lend loan
-        require(this.balance >= _loanTokenAmount);
+        // require(this.balance >= _loanTokenAmount);
         require(fundingBalances[address(this)] >= _loanTokenAmount);
         // Update fundingBalances
-        sub(fundingBalances[address(this)], _loanTokenAmount);
-        // Update loanBalances
-        add(marginAccountBalances[_borrower], _loanTokenAmount);
+        fundingBalances[address(this)] = sub(fundingBalances[address(this)], _loanTokenAmount);
+        // Update marginAccountBalances
+        marginAccountBalances[_borrower] = add(marginAccountBalances[_borrower], _loanTokenAmount);
         
         return true;
     }
@@ -130,17 +182,16 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         )
         public
         stoppable
-        auth// loanmanager
-        view
+        // auth// loanmanager
         returns (bool)
     {
         // Check eligibility
         // borrower has enough funds to repay loan
         require(marginAccountBalances[_borrower] >= _loanTokenAmount);
         // Update loanBalances
-        sub(marginAccountBalances[_borrower], _loanTokenAmount);
+        marginAccountBalances[_borrower] = sub(marginAccountBalances[_borrower], _loanTokenAmount);
         // Update fundingBalances
-        add(fundingBalances[address(this)], _loanTokenAmountPaid);
+        fundingBalances[address(this)] = add(fundingBalances[address(this)], _loanTokenAmountPaid);
         
         return true;
     }

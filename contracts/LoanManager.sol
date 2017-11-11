@@ -43,8 +43,8 @@ contract LoanManager is DSMath, DSStop {
         bytes32 _action     // The tyoe of action: "loan availed", "loan closed"
     );
 
-    function percentOf(uint _quantity, uint _percentage) internal returns (uint256){
-        return wdiv(mul(_quantity, _percentage), 10 ** LendroidNetworkParameters.decimals());
+    function percentOf(uint _quantity, uint _percentage) internal view returns (uint256){
+        return wdiv(wmul(_quantity, _percentage), 10 ** LendroidNetworkParameters.decimals());
     }
 
     /**
@@ -82,13 +82,16 @@ contract LoanManager is DSMath, DSStop {
         @notice Avail a loan
         @return true the loan was successfully created
     */
-    function availLoan() 
+    function availLoan(
+            uint _loanAmount
+        ) 
         public 
         stoppable
         returns (bool) 
     {
         // TODO: Check if borrower account is healthy
-        var _loanAmount = LendroidWallet.getMaximumBorrowableAmount(msg.sender);
+        var _borrowableAmount = LendroidWallet.getMaximumBorrowableAmount(msg.sender);
+        require(_borrowableAmount >= _loanAmount);
         require(LendroidWallet.encumberCollateral(msg.sender, _loanAmount));
         // Set loan fields and save loan
         Loan memory loan;
@@ -96,7 +99,7 @@ contract LoanManager is DSMath, DSStop {
         loan.borrower = msg.sender;
         loan.amount = _loanAmount;
         loan.expiresOn = now + LendroidNetworkParameters.maxLoanPeriodDays();
-        loan.interestRate = LendroidNetworkParameters.interestRatePerDay();
+        loan.interestRate = LendroidNetworkParameters.interestRate();
         loan.status = Status.ACTIVE;
 
         loan.loanHash = getLoanHash(
@@ -107,7 +110,7 @@ contract LoanManager is DSMath, DSStop {
             loan.interestRate
         );
         loans[loan.loanHash] = loan;
-        msg.sender.transfer(loan.amount);
+        // msg.sender.transfer(loan.amount);
         LogLoanUpdated(
             loan.loanHash,  // The Hash of the Loan
             msg.sender,   // The address that caused the action
@@ -137,7 +140,7 @@ contract LoanManager is DSMath, DSStop {
         require(add(activeLoan.expiresOn, LendroidNetworkParameters.gracePeriodDays()) >= now);
         // Verify interest
         uint daysSinceLoan = wdiv(now - activeLoan.timestamp, 86400);
-        uint interestAccrued = mul(percentOf(activeLoan.amount , LendroidNetworkParameters.interestRatePerDay()), daysSinceLoan);
+        uint interestAccrued = wmul(percentOf(activeLoan.amount , LendroidNetworkParameters.interestRate()), daysSinceLoan);
         require(add(interestAccrued, activeLoan.amount) == msg.value);
         // Archive the active loan
         activeLoan.status = Status.CLOSED;
@@ -187,28 +190,11 @@ contract LoanManager is DSMath, DSStop {
     function amountOwed(bytes32 _loanHash) public stoppable constant returns (uint) {
         Loan storage activeLoan = loans[_loanHash];
         uint daysSinceLoan = wdiv(now - activeLoan.timestamp, 86400);
-        uint interestAccrued = mul(percentOf(activeLoan.amount, LendroidNetworkParameters.interestRatePerDay()), daysSinceLoan);
+        uint interestAccrued = wmul(percentOf(activeLoan.amount, LendroidNetworkParameters.interestRate()), daysSinceLoan);
         if (activeLoan.expiresOn < now) {
             return 0;
         }
         return add(interestAccrued, activeLoan.amount);
-    }
-
-    /**
-        @dev Payable which can be called only by the contract owner.
-        @return true the contract's balance was successfully refilled
-    */
-    function refillBalance() payable auth returns (bool) {
-        return true;
-    }
-
-    /**
-        @dev Payable function which can be called only by the contract owner.
-        @return true the contract's balance was successfully withdrawn
-    */
-    function withdrawBalance(uint256 _amount) auth returns (bool) {
-        msg.sender.transfer(_amount);
-        return true;
     }
 
 }
