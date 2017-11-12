@@ -102,6 +102,15 @@ contract NetworkParameters is DSMath, DSStop {
         }
     }
 
+    function isValidTradingSymbol(bytes32 _symbol)
+        public
+        constant
+        symbolExists(_symbol)
+        returns (bool)
+    {
+        return tradingTokens[_symbol];
+    }
+
     /// @dev Allows owner to add a new token to the registry.
     /// @param _token Address of new token.
     /// @param _name Name of new token.

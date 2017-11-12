@@ -8,7 +8,8 @@ import "./NetworkParameters.sol";
 
 /**
     @title LoanManager
-    @notice The LoanManager contract inherits the Ownable contract, and manages loans on Lendroid.
+    @notice The LoanManager contract inherits the DSMath & DSStop contracts, 
+        and manages loans on Lendroid.
  */
 contract LoanManager is DSMath, DSStop {
 
@@ -169,7 +170,7 @@ contract LoanManager is DSMath, DSStop {
             uint expiresOn,
             uint interestRate
         )
-        public
+        internal
         constant
         returns (bytes32)
     {
