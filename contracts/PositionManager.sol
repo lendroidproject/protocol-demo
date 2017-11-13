@@ -27,26 +27,28 @@ contract PositionManager is DSMath, DSStop {
 
     struct Position {
         uint timestamp;
-        bytes32 orderHash;
-        bytes32 makerTokenSymbol;
-        bytes32 takerTokenSymbol;
-        uint makerTokenAmount;
-        uint takerTokenAmount;
-        uint makerTokenOpeningRate;
-        uint takerTokenOpeningRate;
+        address trader;
+        bytes32 tokenSymbol;
+        uint tokenAmount;
         bytes32 positionHash;
         uint positionId;
         Status status;
+        uint lastUpdated;
     }
 
     mapping (bytes32 => Position) positions;
-    mapping (address => bytes32[]) accountpositions; // Trade positions array per address
+    mapping (address => bytes32[]) openPositions; // Open trade positions array per address
 
     event LogPositionUpdated(
         bytes32 _positionHash,  // The Hash of the Position
         address _address,       // The address that caused the action
         bytes32 _action         // The tyoe of action: "position opened", "position closed"
     );
+
+    modifier onlyLendroidWallet() {
+        require(msg.sender == address(LendroidWallet));
+        _;
+    }
 
     function percentOf(uint _quantity, uint _percentage) internal view returns (uint256){
         return wdiv(wmul(_quantity, _percentage), 10 ** LendroidNetworkParameters.decimals());
@@ -96,57 +98,55 @@ contract PositionManager is DSMath, DSStop {
     }
 
     function createPosition(
-            bytes32 _orderHash,
-            address _borrower,
-            bytes32 _makerTokenSymbol,
-            bytes32 _takerTokenSymbol,
-            uint _makerTokenAmount,
-            uint _takerTokenAmount
+            address _trader,
+            bytes32 _tokenSymbol,
+            uint _tokenAmount
         )
         public
         stoppable
         // auth// ordermanager
         returns (bool)
     {
-        // TODO: Check if borrower account is healthy
-        // Calculate WETH rate and verify if borrower can open a positiCalculate
-        uint _maxAmount = LendroidWallet.getMaximumPositionOpenableAmount(_borrower);
-        uint _positionTokenOpeningRate = LendroidOracle.getPrice(_takerTokenSymbol);
-        uint _positionAmount = wmul(_positionTokenOpeningRate, _takerTokenAmount);
+        // TODO: Check if trader account is healthy
+        // Calculate WETH rate and verify if borrower can open a position
+        uint _maxAmount = LendroidWallet.getMaximumPositionOpenableAmount(_trader);
+        uint _tokenRate = LendroidOracle.getPrice(_tokenSymbol);
+        uint _positionAmount = wmul(_tokenRate, _tokenAmount);
         require(_maxAmount >= _positionAmount);
         // Update balances
         require(LendroidWallet.openPosition(msg.sender, _positionAmount));
         // Open a position
         Position memory position;
         position.timestamp = now;
-        position.orderHash = _orderHash;
-        position.makerTokenSymbol = _makerTokenSymbol;
-        position.takerTokenSymbol = _takerTokenSymbol;
-        position.makerTokenAmount = _makerTokenAmount;
-        position.takerTokenAmount = _takerTokenAmount;
-        position.positionId = accountpositions[msg.sender].length;
+        position.trader = _trader;
+        position.tokenSymbol = _tokenSymbol;
+        position.tokenAmount = _tokenAmount;
+        position.positionId = openPositions[msg.sender].length;
         position.positionHash = getPositionHash(
             position.timestamp,
-            position.orderHash,
-            position.makerTokenSymbol,
-            position.takerTokenSymbol,
-            position.makerTokenAmount,
-            position.takerTokenAmount,
+            position.trader,
+            position.tokenSymbol,
+            position.tokenAmount,
             position.positionId
         );
         position.status = Status.ACTIVE;
-        // Add current market rate of tokens wrt WETH
-        position.makerTokenOpeningRate = LendroidOracle.getPrice(_makerTokenSymbol);
-        position.takerTokenOpeningRate = _positionTokenOpeningRate;
         // Save position
         positions[position.positionHash] = position;
-        accountpositions[msg.sender].push(position.positionHash);
+        openPositions[msg.sender].push(position.positionHash);
         // Log position update
+        LogPositionUpdated(
+            position.positionHash,
+            _trader,
+            "position opened"
+        );
         
         return true;
     }
     
-    function closePosition(bytes32 _positionHash) 
+    function closePosition(
+            bytes32 _positionHash,
+            address _trader
+        ) 
         public
         payable 
         stoppable
@@ -155,17 +155,28 @@ contract PositionManager is DSMath, DSStop {
         // TODO: Check if borrower account is healthy
         // Get position based on hash
         Position storage position = positions[_positionHash];
+        // Validations
+        // Verify trader
+        require(position.trader == msg.sender);
+        // Archive the active position
+        position.status = Status.CLOSED;
+        position.lastUpdated = now;
+        openPositions[_trader][position.positionId] = openPositions[_trader][openPositions[_trader].length - 1];
+        openPositions[_trader].length--;
+        LogPositionUpdated(
+            _positionHash,
+            _trader,
+            "position opened"
+        );
         return true;
     }
 
     /// @return Keccak-256 hash of position.
     function getPositionHash(
             uint timestamp,
-            bytes32 orderHash,
-            bytes32 makerTokenSymbol,
-            bytes32 takerTokenSymbol,
-            uint makerTokenAmount,
-            uint takerTokenAmount,
+            address trader,
+            bytes32 tokenSymbol,
+            uint tokenAmount,
             uint positionId
         )
         internal
@@ -175,41 +186,28 @@ contract PositionManager is DSMath, DSStop {
         return keccak256(
             address(this),
             timestamp,
-            orderHash,
-            makerTokenSymbol,
-            takerTokenSymbol,
-            makerTokenAmount,
-            takerTokenAmount,
+            trader,
+            tokenSymbol,
+            tokenAmount,
             positionId
         );
     }
 
-    function positionHealth(bytes32 _positionHash)
+    function unRealizedPLs(address _trader)
         public
         stoppable
+        onlyLendroidWallet
         constant
-        returns (bytes32, uint)
+        returns (uint)
     {
-        Position storage position = positions[_positionHash];
-        require (position.status == Status.ACTIVE);
-        uint openingTotal = add(
-            mul(position.makerTokenAmount, position.makerTokenOpeningRate),
-            mul(position.takerTokenAmount, position.takerTokenOpeningRate)
-        );
-        uint currentTotal = add(
-            mul(position.makerTokenAmount, LendroidOracle.getPrice(position.makerTokenSymbol)),
-            mul(position.takerTokenAmount, LendroidOracle.getPrice(position.takerTokenSymbol))
-        );
-        if (openingTotal > currentTotal) {
-            return ("decreasing", sub(openingTotal, currentTotal));
+        uint totalPLs = 0;
+        for (uint positionId = 0; positionId < openPositions[_trader].length; positionId++) {
+            Position storage position = positions[openPositions[_trader][positionId]];
+            require (position.status == Status.ACTIVE);
+            totalPLs = add(totalPLs, mul(position.tokenAmount, LendroidOracle.getPrice(position.tokenSymbol)));
         }
-        if (currentTotal > openingTotal) {
-            return ("increasing", sub(currentTotal, openingTotal));
-        }
-        if (currentTotal == openingTotal) {
-            return ("equal", 0);
-        }
-        return ("invalid", 0);
+        
+        return totalPLs;
     }
 
 }

@@ -6,17 +6,30 @@ import "./stop.sol";
 import "./multivault.sol";
 
 import "./NetworkParameters.sol";
+import "./LoanManager.sol";
+import "./PositionManager.sol";
 
 
 contract Wallet is DSMultiVault, DSMath, DSStop {
     
     NetworkParameters LendroidNetworkParameters;
+    LoanManager LendroidLoanManager;
+    PositionManager LendroidPositionManager;
 
     mapping (address => uint) fundingBalances; // Simple Funding balance tracker
     mapping (address => uint) collateralBalances; // Simple Collateral balance tracker
-    mapping (address => uint) tradeAccountBalances; // Simple trade account balance tracker
-    mapping (address => uint) positionBalances; // Simple position balance tracker
+    mapping (address => uint) loanBalances; // Simple balance tracker for loan amounts borrowed
     mapping (address => uint) wranglerBalances; // Simple Wrangler balance tracker
+
+    modifier onlyLoanManager() {
+        require(msg.sender == address(LendroidLoanManager));
+        _;
+    }
+
+    modifier onlyPositionManager() {
+        require(msg.sender == address(LendroidPositionManager));
+        _;
+    }
 
     /// @dev Throws if called by any account.
     function() {
@@ -89,7 +102,7 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         return true;
     }
 
-    function getCollateralBalance(
+    function getMarginValue(
             address _address
         ) 
         public
@@ -100,18 +113,21 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         return collateralBalances[_address];
     }
 
-    function getTradeAccountBalance(
+    function getNetValue(
             address _address
-        ) 
+        )
         public
         stoppable
         constant
         returns (uint)
     {
-        return tradeAccountBalances[_address];
+        uint marginValue = getMarginValue(_address);
+        uint unRealizedPLs = LendroidPositionManager.unRealizedPLs(_address);
+        uint unRealizedLendingFees = LendroidLoanManager.unRealizedLendingFees(_address);
+        return add(marginValue, add(unRealizedPLs, unRealizedLendingFees));
     }
 
-    function getPositionBalance(
+    function getTotalBorrowedValue(
             address _address
         ) 
         public
@@ -119,7 +135,29 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         constant
         returns (uint)
     {
-        return positionBalances[_address];
+        return loanBalances[_address];
+    }
+
+    function getCurrentMargin(
+            address _address
+        ) 
+        public
+        stoppable
+        constant
+        returns (uint)
+    {
+        return wdiv(getNetValue(_address), getTotalBorrowedValue(_address));
+    }
+
+    function isMarginAccountHealthy(
+            address _address
+        ) 
+        public
+        stoppable
+        constant
+        returns (bool)
+    {
+        return getCurrentMargin(_address) > wdiv(LendroidNetworkParameters.liquidationMargin(), 100);
     }
 
     // Get maximum amount that can be borrowed
@@ -133,13 +171,10 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
     {
         return sub(
             wmul(
-                wdiv(
-                    LendroidNetworkParameters.initialMarginLevel(),
-                    10 ** LendroidNetworkParameters.decimals()
-                ),
-                getCollateralBalance(_address)
+                LendroidNetworkParameters.borrowableLevel(),
+                getMarginValue(_address)
             ),
-            getTradeAccountBalance(_address)
+            getTotalBorrowedValue(_address)
         );
     }
     
@@ -152,16 +187,12 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         constant
         returns (uint)
     {
-        return sub(
-            getCollateralBalance(_address),
-            wdiv(
-                getTradeAccountBalance(_address),
-                wdiv(
-                    LendroidNetworkParameters.initialMarginLevel(),
-                    10 ** LendroidNetworkParameters.decimals()
-                )
-            )
-        );
+        if (getMarginValue(_address) > getNetValue(_address)) {
+            return sub(getMarginValue(_address), getNetValue(_address));
+        }
+        else {
+            return 0;
+        }
     }
 
     // Get maximum position amount that can be opened
@@ -173,16 +204,7 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         constant
         returns (uint)
     {
-        return sub(
-            wmul(
-                wdiv(
-                    LendroidNetworkParameters.liquidationMarginLevel(),
-                    10 ** LendroidNetworkParameters.decimals()
-                ),
-                getCollateralBalance(_address)
-            ),
-            getPositionBalance(_address)
-        );
+        return loanBalances[_address];
     }
 
     // authorized call to reshuffle balances
@@ -193,6 +215,7 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         public
         stoppable
         // auth// loanmanager
+        onlyLoanManager
         returns (bool)
     {
         // Check eligibility
@@ -201,9 +224,8 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         require(fundingBalances[address(this)] >= _loanTokenAmount);
         // Update fundingBalances
         fundingBalances[address(this)] = sub(fundingBalances[address(this)], _loanTokenAmount);
-        // Update tradeAccountBalances
-        tradeAccountBalances[_borrower] = add(tradeAccountBalances[_borrower], _loanTokenAmount);
-        
+        // Update loanBalances
+        loanBalances[_borrower] = add(loanBalances[_borrower], _loanTokenAmount);
         return true;
     }
 
@@ -216,16 +238,16 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         public
         stoppable
         // auth// loanmanager
+        onlyLoanManager
         returns (bool)
     {
         // Check eligibility
         // borrower has enough funds to repay loan
-        require(tradeAccountBalances[_borrower] >= _loanTokenAmount);
-        // Update tradeAccountBalances
-        tradeAccountBalances[_borrower] = sub(tradeAccountBalances[_borrower], _loanTokenAmount);
+        require(loanBalances[_borrower] >= _loanTokenAmount);
+        // Update marginAccountBalances
+        loanBalances[_borrower] = sub(loanBalances[_borrower], _loanTokenAmount);
         // Update fundingBalances
         fundingBalances[address(this)] = add(fundingBalances[address(this)], _loanTokenAmountPaid);
-        
         return true;
     }
     
@@ -237,15 +259,14 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         public
         stoppable
         // auth// positionmanager
+        onlyPositionManager
         returns (bool)
     {
         // Check eligibility
         // borrower has enough margin account funds to open position
-        require(tradeAccountBalances[_borrower] >= _positionAmount);
-        // Update tradeAccountBalances
-        tradeAccountBalances[_borrower] = sub(tradeAccountBalances[_borrower], _positionAmount);
-        // Update positionBalances
-        positionBalances[_borrower] = add(positionBalances[_borrower], _positionAmount);
+        require(loanBalances[_borrower] >= _positionAmount);
+        // Update loanBalances
+        loanBalances[_borrower] = sub(loanBalances[_borrower], _positionAmount);
         
         return true;
     }
@@ -258,15 +279,12 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         public
         stoppable
         // auth// positionmanager
+        onlyPositionManager
         returns (bool)
     {
         // Check eligibility
-        // borrower has enough margin account funds to close position
-        require(positionBalances[_borrower] >= _positionAmount);
-        // Update positionBalances
-        positionBalances[_borrower] = sub(positionBalances[_borrower], _positionAmount);
-        // Update tradeAccountBalances
-        tradeAccountBalances[_borrower] = add(tradeAccountBalances[_borrower], _positionAmount);
+        // Update loanBalances
+        loanBalances[_borrower] = add(loanBalances[_borrower], _positionAmount);
         
         return true;
     }

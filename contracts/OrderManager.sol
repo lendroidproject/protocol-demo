@@ -168,11 +168,8 @@ contract OrderManager is DSMath, DSStop {
         require(order.expiresOn <= now);
         // Open position
         require(LendroidPositionManager.createPosition(
-                _orderHash,
                 msg.sender,
-                order.makerTokenSymbol,
                 order.takerTokenSymbol,
-                order.makerTokenAmount,
                 order.takerTokenAmount
             )
         );

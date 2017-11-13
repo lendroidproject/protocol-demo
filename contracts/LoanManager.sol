@@ -33,9 +33,11 @@ contract LoanManager is DSMath, DSStop {
         uint interestRate;
         Status status;
         bytes32 loanHash;
+        uint loanId;
     }
 
     mapping (bytes32 => Loan) public loans;
+    mapping (address => bytes32[]) borrowedLoans;
 
     event LogLoanUpdated(
         bytes32 _loanHash,  // The Hash of the Loan
@@ -43,6 +45,11 @@ contract LoanManager is DSMath, DSStop {
         uint256 _amount,    // The amount associated with the action
         bytes32 _action     // The tyoe of action: "loan availed", "loan closed"
     );
+
+    modifier onlyLendroidWallet() {
+        require(msg.sender == address(LendroidWallet));
+        _;
+    }
 
     function percentOf(uint _quantity, uint _percentage) internal view returns (uint256){
         return wdiv(wmul(_quantity, _percentage), 10 ** LendroidNetworkParameters.decimals());
@@ -101,6 +108,7 @@ contract LoanManager is DSMath, DSStop {
         loan.amount = _loanAmount;
         loan.expiresOn = now + LendroidNetworkParameters.maxLoanPeriodDays();
         loan.interestRate = LendroidNetworkParameters.interestRate();
+        loan.loanId = borrowedLoans[msg.sender].length;
         loan.status = Status.ACTIVE;
 
         loan.loanHash = getLoanHash(
@@ -108,9 +116,11 @@ contract LoanManager is DSMath, DSStop {
             loan.borrower,
             loan.amount,
             loan.expiresOn,
-            loan.interestRate
+            loan.interestRate,
+            loan.loanId
         );
         loans[loan.loanHash] = loan;
+        borrowedLoans[msg.sender].push(loan.loanHash);
         // msg.sender.transfer(loan.amount);
         LogLoanUpdated(
             loan.loanHash,  // The Hash of the Loan
@@ -152,6 +162,8 @@ contract LoanManager is DSMath, DSStop {
             activeLoan.amount,
             activeLoan.amountPaid
         ));
+        borrowedLoans[msg.sender][activeLoan.loanId] = borrowedLoans[msg.sender][borrowedLoans[msg.sender].length - 1];
+        borrowedLoans[msg.sender].length--;
         LogLoanUpdated(
             activeLoan.loanHash,  // The Hash of the Loan
             msg.sender,   // The address that caused the action
@@ -168,7 +180,8 @@ contract LoanManager is DSMath, DSStop {
             address borrower,
             uint amount,
             uint expiresOn,
-            uint interestRate
+            uint interestRate,
+            uint loanId
         )
         internal
         constant
@@ -180,7 +193,8 @@ contract LoanManager is DSMath, DSStop {
             borrower,
             amount,
             expiresOn,
-            interestRate
+            interestRate,
+            loanId
         );
     }
 
@@ -196,6 +210,29 @@ contract LoanManager is DSMath, DSStop {
             return 0;
         }
         return add(interestAccrued, activeLoan.amount);
+    }
+
+    /**
+        @param _borrower the address of the account that has borrowed loans
+        @return uint the total owed amount
+    */
+    function unRealizedLendingFees(address _borrower) 
+        public 
+        stoppable
+        onlyLendroidWallet
+        constant 
+        returns (uint) 
+    {
+        uint totalInterestAccrued = 0;
+        for (uint loanId = 0; loanId < borrowedLoans[_borrower].length; loanId++) {
+            Loan storage activeLoan = loans[borrowedLoans[_borrower][loanId]];
+            uint daysSinceLoan = wdiv(now - activeLoan.timestamp, 86400);
+            uint interestAccrued = wmul(percentOf(activeLoan.amount, LendroidNetworkParameters.interestRate()), daysSinceLoan);
+            require(activeLoan.expiresOn > now);
+            totalInterestAccrued = add(totalInterestAccrued, add(interestAccrued, activeLoan.amount));
+        }
+        
+        return totalInterestAccrued;
     }
 
 }

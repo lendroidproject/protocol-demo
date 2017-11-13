@@ -9,8 +9,8 @@ contract NetworkParameters is DSMath, DSStop {
     bool public tradingAllowed;
     uint public maximumAllowedMarginAccounts;
     uint public decimals;
-    uint public initialMarginPercentage;
-    uint public liquidationMarginPercentage;
+    uint public initialMargin;
+    uint public liquidationMargin;
     
     uint public interestRatePercentage;
     bytes32 public interestRateInterval;
@@ -79,8 +79,8 @@ contract NetworkParameters is DSMath, DSStop {
         tradingAllowed = true;
         maximumAllowedMarginAccounts = 50;
         decimals = 18;
-        initialMarginPercentage = 40;// 1 / 40% = 2.5 times collateral
-        liquidationMarginPercentage = 20;// 1 / 20% = 5 times collateral
+        initialMargin = 40;// Borrowable = 100 / 40 = 2.5
+        liquidationMargin = 20;
         
         interestRatePercentage = 10;
         interestRateInterval = "day";
@@ -346,28 +346,20 @@ contract NetworkParameters is DSMath, DSStop {
         return tokenAddresses;
     }
 
-    function initialMarginLevel()
-        public
-        constant
-        returns (uint)
-    {
-        return wmul(wdiv(100, initialMarginPercentage), 10 ** decimals);
-    }
-
-    function liquidationMarginLevel()
-        public
-        constant
-        returns (uint)
-    {
-        return wmul(wdiv(100, liquidationMarginPercentage), 10 ** decimals);
-    }
-
     function interestRate()
         public
         constant
         returns (uint)
     {
         return wmul(wdiv(interestRatePercentage, 100), 10 ** decimals);
+    }
+
+    function borrowableLevel()
+        public
+        constant
+        returns (uint)
+    {
+        return wmul(wdiv(100, initialMargin), 10 ** decimals);
     }
 
     /**
@@ -417,7 +409,7 @@ contract NetworkParameters is DSMath, DSStop {
     */
     function setInitialMarginPercentage(uint _percentage) public auth returns (bool) {
         require(_percentage <= 100);
-        initialMarginPercentage = _percentage;
+        initialMargin = _percentage;
         return true;
     }
 
@@ -428,7 +420,7 @@ contract NetworkParameters is DSMath, DSStop {
     */
     function setLiquidationMarginPercentage(uint _percentage) public auth returns (bool) {
         require(_percentage <= 100);
-        liquidationMarginPercentage = _percentage;
+        liquidationMargin = _percentage;
         return true;
     }
 }
