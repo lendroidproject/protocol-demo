@@ -193,6 +193,17 @@ contract PositionManager is DSMath, DSStop {
         );
     }
 
+    function unRealizedPL(bytes32 _positionHash)
+        public
+        stoppable
+        constant
+        returns (uint)
+    {
+        Position storage position = positions[_positionHash];
+        require (position.status == Status.ACTIVE);
+        return mul(position.tokenAmount, LendroidOracle.getPrice(position.tokenSymbol));
+    }
+
     function unRealizedPLs(address _trader)
         public
         stoppable
@@ -202,12 +213,22 @@ contract PositionManager is DSMath, DSStop {
     {
         uint totalPLs = 0;
         for (uint positionId = 0; positionId < openPositions[_trader].length; positionId++) {
-            Position storage position = positions[openPositions[_trader][positionId]];
-            require (position.status == Status.ACTIVE);
-            totalPLs = add(totalPLs, mul(position.tokenAmount, LendroidOracle.getPrice(position.tokenSymbol)));
+            totalPLs = add(totalPLs, unRealizedPL(openPositions[_trader][positionId]));
         }
         
         return totalPLs;
     }
+
+    /**
+        @param _trader the address that has opened positions
+        @return bytes32[] array of position hashes
+    */
+    function positionsOpened(address _trader)
+        public
+        stoppable
+        constant
+        returns (bytes32[]) {
+            return openPositions[_trader];
+        }
 
 }

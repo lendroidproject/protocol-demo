@@ -150,9 +150,7 @@ contract LoanManager is DSMath, DSStop {
         // Verify expiry date
         require(add(activeLoan.expiresOn, LendroidNetworkParameters.gracePeriodDays()) >= now);
         // Verify interest
-        uint daysSinceLoan = wdiv(now - activeLoan.timestamp, 86400);
-        uint interestAccrued = wmul(percentOf(activeLoan.amount , LendroidNetworkParameters.interestRate()), daysSinceLoan);
-        require(add(interestAccrued, activeLoan.amount) == msg.value);
+        require(amountOwed(_loanHash) == msg.value);
         // Archive the active loan
         activeLoan.status = Status.CLOSED;
         activeLoan.amountPaid = msg.value;
@@ -202,14 +200,35 @@ contract LoanManager is DSMath, DSStop {
         @param _loanHash the hash of the loan whose amount is owed
         @return uint the owed amount
     */
-    function amountOwed(bytes32 _loanHash) public stoppable constant returns (uint) {
+    function amountOwed(bytes32 _loanHash)
+        public 
+        stoppable 
+        constant 
+        returns (uint) 
+    {
         Loan storage activeLoan = loans[_loanHash];
-        uint daysSinceLoan = wdiv(now - activeLoan.timestamp, 86400);
+        uint daysSinceLoan = wdiv(sub(now, activeLoan.timestamp), wdiv(86400, 3600));
         uint interestAccrued = wmul(percentOf(activeLoan.amount, LendroidNetworkParameters.interestRate()), daysSinceLoan);
         if (activeLoan.expiresOn < now) {
             return 0;
         }
         return add(interestAccrued, activeLoan.amount);
+    }
+    
+    /**
+        @param _loanHash the hash of the loan whose interest is owed
+        @return uint the owed interest
+    */
+    function unRealizedLendingFee(bytes32 _loanHash)
+        public 
+        stoppable 
+        constant 
+        returns (uint) 
+    {
+        Loan storage activeLoan = loans[_loanHash];
+        uint daysSinceLoan = wdiv(sub(now, activeLoan.timestamp), wdiv(86400, 3600));
+        
+        return wmul(percentOf(activeLoan.amount, LendroidNetworkParameters.interestRate()), daysSinceLoan);
     }
 
     /**
@@ -225,14 +244,22 @@ contract LoanManager is DSMath, DSStop {
     {
         uint totalInterestAccrued = 0;
         for (uint loanId = 0; loanId < borrowedLoans[_borrower].length; loanId++) {
-            Loan storage activeLoan = loans[borrowedLoans[_borrower][loanId]];
-            uint daysSinceLoan = wdiv(now - activeLoan.timestamp, 86400);
-            uint interestAccrued = wmul(percentOf(activeLoan.amount, LendroidNetworkParameters.interestRate()), daysSinceLoan);
-            require(activeLoan.expiresOn > now);
-            totalInterestAccrued = add(totalInterestAccrued, add(interestAccrued, activeLoan.amount));
+            totalInterestAccrued = add(totalInterestAccrued, unRealizedLendingFee(borrowedLoans[_borrower][loanId]));
         }
         
         return totalInterestAccrued;
     }
+
+    /**
+        @param _borrower the address that has borrowed loans
+        @return bytes32[] array of loan hashes
+    */
+    function loansBorrowed(address _borrower)
+        public
+        stoppable
+        constant
+        returns (bytes32[]) {
+            return borrowedLoans[_borrower];
+        }
 
 }

@@ -48,6 +48,30 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         return true;
     }
     
+    /// @dev Allows owner to set the LoanManager contract.
+    /// @param _address Address of the LoanManager contract.
+    function setLendroidLoanManager(address _address)
+        public 
+        stoppable
+        auth// owner
+        returns (bool) 
+    {
+        LendroidLoanManager = LoanManager(_address);
+        return true;
+    }
+    
+    /// @dev Allows owner to set the PositionManager contract.
+    /// @param _address Address of the PositionManager contract.
+    function setLendroidPositionManager(address _address)
+        public 
+        stoppable
+        auth// owner
+        returns (bool) 
+    {
+        LendroidPositionManager = PositionManager(_address);
+        return true;
+    }
+    
     // Deposit funds
     function depositLendingFunds() 
         public
@@ -121,10 +145,13 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         constant
         returns (uint)
     {
-        uint marginValue = getMarginValue(_address);
-        uint unRealizedPLs = LendroidPositionManager.unRealizedPLs(_address);
-        uint unRealizedLendingFees = LendroidLoanManager.unRealizedLendingFees(_address);
-        return add(marginValue, add(unRealizedPLs, unRealizedLendingFees));
+        return add(
+            getMarginValue(_address),
+            add(
+                LendroidPositionManager.unRealizedPLs(_address),
+                LendroidLoanManager.unRealizedLendingFees(_address)
+            )
+        );
     }
 
     function getTotalBorrowedValue(
@@ -187,8 +214,20 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         constant
         returns (uint)
     {
-        if (getMarginValue(_address) > getNetValue(_address)) {
-            return sub(getMarginValue(_address), getNetValue(_address));
+        if (getTotalBorrowedValue(_address) == 0) {
+            return getMarginValue(_address);
+        }
+        if (getCurrentMargin(_address) > wdiv(LendroidNetworkParameters.initialMargin(), 100)) {
+            return sub(
+                getNetValue(_address),
+                mul(
+                    getTotalBorrowedValue(_address),
+                    wdiv(
+                        LendroidNetworkParameters.initialMargin(),
+                        100
+                    )
+                )
+            );
         }
         else {
             return 0;
