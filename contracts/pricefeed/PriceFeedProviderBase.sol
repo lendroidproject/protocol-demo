@@ -5,8 +5,8 @@
 */
 
 pragma solidity ^0.4.18;
-import "./stop.sol";
-import "./NetworkParameters.sol";
+import "../helpers/stop.sol";
+import "../NetworkParameters.sol";
 import "./PriceFeedManager.sol";
 
 

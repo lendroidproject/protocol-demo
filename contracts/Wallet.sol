@@ -1,9 +1,9 @@
 pragma solidity 0.4.18;
 
-import "./math.sol";
-import "./token.sol";
-import "./stop.sol";
-import "./multivault.sol";
+import "./helpers/math.sol";
+import "./helpers/token.sol";
+import "./helpers/stop.sol";
+import "./helpers/multivault.sol";
 
 import "./NetworkParameters.sol";
 import "./LoanManager.sol";
@@ -11,13 +11,14 @@ import "./PositionManager.sol";
 
 
 contract Wallet is DSMultiVault, DSMath, DSStop {
-    
+
     NetworkParameters LendroidNetworkParameters;
     LoanManager LendroidLoanManager;
     PositionManager LendroidPositionManager;
 
     mapping (address => uint) fundingBalances; // Simple Funding balance tracker
     mapping (address => uint) collateralBalances; // Simple Collateral balance tracker
+    mapping (address => uint) openPositionAmounts; // Simple balance tracker for position amounts opened
     mapping (address => uint) loanBalances; // Simple balance tracker for loan amounts borrowed
     mapping (address => uint) wranglerBalances; // Simple Wrangler balance tracker
 
@@ -39,41 +40,41 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
     /// @dev Allows owner to set the NetworkParameters contract.
     /// @param _address Address of the NetworkParameters contract.
     function setLendroidNetworkParameters(address _address)
-        public 
+        public
         stoppable
         auth// owner
-        returns (bool) 
+        returns (bool)
     {
         LendroidNetworkParameters = NetworkParameters(_address);
         return true;
     }
-    
+
     /// @dev Allows owner to set the LoanManager contract.
     /// @param _address Address of the LoanManager contract.
     function setLendroidLoanManager(address _address)
-        public 
+        public
         stoppable
         auth// owner
-        returns (bool) 
+        returns (bool)
     {
         LendroidLoanManager = LoanManager(_address);
         return true;
     }
-    
+
     /// @dev Allows owner to set the PositionManager contract.
     /// @param _address Address of the PositionManager contract.
     function setLendroidPositionManager(address _address)
-        public 
+        public
         stoppable
         auth// owner
-        returns (bool) 
+        returns (bool)
     {
         LendroidPositionManager = PositionManager(_address);
         return true;
     }
-    
+
     // Deposit funds
-    function depositLendingFunds() 
+    function depositLendingFunds()
         public
         stoppable
         payable
@@ -83,8 +84,8 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         fundingBalances[address(this)] = add(fundingBalances[address(this)], msg.value);
         return true;
     }
-    
-    function getFundingBalance() 
+
+    function getFundingBalance()
         public
         stoppable
         constant
@@ -92,23 +93,23 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
     {
         return fundingBalances[address(this)];
     }
-    
-    function depositCollateral() 
+
+    function depositCollateral()
         public
         stoppable
         payable
         returns (bool)
     {
-        
+
         address _token = LendroidNetworkParameters.getTokenAddressBySymbol("W-ETH");
         // pull
         // pull(DSToken(_token), msg.sender, msg.value);
         collateralBalances[msg.sender] = add(collateralBalances[msg.sender], msg.value);
         return true;
     }
-    
+
     // Withdraw funds
-    function withdrawCollateral(uint _amount) 
+    function withdrawCollateral(uint _amount)
         public
         stoppable
         returns (bool)
@@ -128,7 +129,7 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
 
     function getMarginValue(
             address _address
-        ) 
+        )
         public
         stoppable
         constant
@@ -145,18 +146,21 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         constant
         returns (uint)
     {
-        return add(
-            getMarginValue(_address),
+        return sub(
             add(
-                LendroidPositionManager.unRealizedPLs(_address),
-                LendroidLoanManager.unRealizedLendingFees(_address)
-            )
+                getMarginValue(_address),
+                add(
+                    LendroidPositionManager.unRealizedPLs(_address),
+                    LendroidLoanManager.unRealizedLendingFees(_address)
+                )
+            ),
+            openPositionAmounts[_address]
         );
     }
 
     function getTotalBorrowedValue(
             address _address
-        ) 
+        )
         public
         stoppable
         constant
@@ -167,7 +171,7 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
 
     function getCurrentMargin(
             address _address
-        ) 
+        )
         public
         stoppable
         constant
@@ -178,7 +182,7 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
 
     function isMarginAccountHealthy(
             address _address
-        ) 
+        )
         public
         stoppable
         constant
@@ -204,7 +208,7 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
             getTotalBorrowedValue(_address)
         );
     }
-    
+
     // Get maximum collateral amount that can be withdrawn
     function getMaximumWithdrawableAmount(
             address _address
@@ -289,7 +293,7 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         fundingBalances[address(this)] = add(fundingBalances[address(this)], _loanTokenAmountPaid);
         return true;
     }
-    
+
     // authorized call to reshuffle balances
     function openPosition(
             address _borrower,
@@ -306,10 +310,11 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         require(loanBalances[_borrower] >= _positionAmount);
         // Update loanBalances
         loanBalances[_borrower] = sub(loanBalances[_borrower], _positionAmount);
-        
+        openPositionAmounts[_borrower] = add(openPositionAmounts[_borrower], _positionAmount);
+
         return true;
     }
-    
+
     // authorized call to reshuffle balances
     function closePosition(
             address _borrower,
@@ -324,7 +329,8 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         // Check eligibility
         // Update loanBalances
         loanBalances[_borrower] = add(loanBalances[_borrower], _positionAmount);
-        
+        openPositionAmounts[_borrower] = sub(openPositionAmounts[_borrower], _positionAmount);
+
         return true;
     }
 }

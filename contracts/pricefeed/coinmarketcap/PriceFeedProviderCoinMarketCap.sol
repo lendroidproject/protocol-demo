@@ -7,8 +7,8 @@
 pragma solidity ^0.4.18;
 import "./oraclizeAPI.sol";
 import "./Ownable.sol";
-import "./PriceFeedProviderBase.sol";
-import "./PriceFeedManager.sol";
+import "../PriceFeedProviderBase.sol";
+import "../PriceFeedManager.sol";
 
 contract PriceFeedProviderCoinMarketCap is PriceFeedProviderBase, usingOraclize, Ownable {
 
@@ -54,10 +54,10 @@ contract PriceFeedProviderCoinMarketCap is PriceFeedProviderBase, usingOraclize,
         return tokenPrices[_symbol];
     }
 
-    function updatePrice(bytes32 _symbol) 
-        public 
+    function updatePrice(bytes32 _symbol)
+        public
         isValidSymbol(_symbol)
-        payable 
+        payable
     {
         if (oraclize_getPrice("URL") > this.balance) {
             LogSendingQuery("Oraclize query was NOT sent, please add some ETH to cover for the query fee");
@@ -69,7 +69,7 @@ contract PriceFeedProviderCoinMarketCap is PriceFeedProviderBase, usingOraclize,
             validQueryIds[queryId] = true;
         }
     }
-    
+
     // @dev Payable which can be called only by the contract owner.
     // @return true the contract's balance was successfully refilled
     function refillBalance() public onlyOwner payable returns (bool) {

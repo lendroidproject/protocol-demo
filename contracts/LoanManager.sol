@@ -1,7 +1,7 @@
 pragma solidity ^0.4.2;
 
-import './math.sol';
-import './stop.sol';
+import './helpers/math.sol';
+import './helpers/stop.sol';
 
 import './Wallet.sol';
 import "./NetworkParameters.sol";

@@ -1,7 +1,7 @@
 pragma solidity 0.4.18;
 
-import "./math.sol";
-import "./stop.sol";
+import "./helpers/math.sol";
+import "./helpers/stop.sol";
 
 // FOR DEMO
 
@@ -11,16 +11,16 @@ contract NetworkParameters is DSMath, DSStop {
     uint public decimals;
     uint public initialMargin;
     uint public liquidationMargin;
-    
+
     uint public interestRatePercentage;
     bytes32 public interestRateInterval;
     uint public maxLoanPeriodDays;
     uint public gracePeriodDays;
-    
+
     bytes32 internal TOKEN_TYPE_LENDING = "lending";
     bytes32 internal TOKEN_TYPE_COLLATERAL = "collateral";
     bytes32 internal TOKEN_TYPE_TRADING = "trading";
-    
+
     mapping (address => TokenMetadata) public tokens;
     mapping (bytes32 => bool) public lendingTokens;
     mapping (bytes32 => bool) public collateralTokens;
@@ -28,7 +28,7 @@ contract NetworkParameters is DSMath, DSStop {
     mapping (bytes32 => address) public tokenBySymbol;
 
     address[] public tokenAddresses;
-    
+
     // Token Registry
     event LogTokenUpdated(
         address indexed token,
@@ -39,7 +39,7 @@ contract NetworkParameters is DSMath, DSStop {
         uint value,
         bytes32 action
     );
-    
+
     enum Status {
         INACTIVE, // Set to inactive when a token is deactivated
         ACTIVE    // Default status when a new token is added
@@ -75,13 +75,13 @@ contract NetworkParameters is DSMath, DSStop {
     }
 
     function NetworkParameters() public {
-        
+
         tradingAllowed = true;
         maximumAllowedMarginAccounts = 50;
         decimals = 18;
         initialMargin = 40;// Borrowable = 100 / 40 = 2.5
         liquidationMargin = 20;
-        
+
         interestRatePercentage = 10;
         interestRateInterval = "day";
         maxLoanPeriodDays = 30 days;
@@ -142,7 +142,7 @@ contract NetworkParameters is DSMath, DSStop {
         });
         tokenAddresses.push(_token);
         tokenBySymbol[_symbol] = _token;
-        
+
         if (isLendingToken) {
             lendingTokens[_symbol] = true;
         }
@@ -168,7 +168,7 @@ contract NetworkParameters is DSMath, DSStop {
             bytes32[3] _tokenTypes
         )
         public
-        symbolExists(_symbol) 
+        symbolExists(_symbol)
         stoppable
         auth
         returns (bool)
@@ -190,7 +190,7 @@ contract NetworkParameters is DSMath, DSStop {
             bytes32[3] _tokenTypes
         )
         public
-        symbolExists(_symbol) 
+        symbolExists(_symbol)
         stoppable
         auth
         returns (bool)
@@ -224,7 +224,7 @@ contract NetworkParameters is DSMath, DSStop {
         tokenAddresses.length -= 1;
 
         TokenMetadata storage token = tokens[_token];
-        
+
         LogTokenUpdated(
             token.token,
             token.name,
@@ -239,7 +239,7 @@ contract NetworkParameters is DSMath, DSStop {
         delete collateralTokens[token.symbol];
         delete tradingTokens[token.symbol];
         delete tokens[_token];
-        
+
     }
 
     /// @dev Provides a registered token's metadata, looked up by address.

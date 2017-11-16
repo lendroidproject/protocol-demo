@@ -1,7 +1,7 @@
 pragma solidity ^0.4.2;
 
-import './math.sol';
-import './stop.sol';
+import './helpers/math.sol';
+import './helpers/stop.sol';
 
 import './Wallet.sol';
 import "./NetworkParameters.sol";
@@ -9,7 +9,7 @@ import "./Oracle.sol";
 
 /**
     @title PositionManager
-    @notice The PositionManager contract inherits the DSMath & DSStop contracts, 
+    @notice The PositionManager contract inherits the DSMath & DSStop contracts,
         and manages trade positions on Lendroid.
  */
 contract PositionManager is DSMath, DSStop {
@@ -30,13 +30,15 @@ contract PositionManager is DSMath, DSStop {
         address trader;
         bytes32 tokenSymbol;
         uint tokenAmount;
+        uint openingRate;
+        uint positionAmount;
         bytes32 positionHash;
         uint positionId;
         Status status;
         uint lastUpdated;
     }
 
-    mapping (bytes32 => Position) positions;
+    mapping (bytes32 => Position) public positions;
     mapping (address => bytes32[]) openPositions; // Open trade positions array per address
 
     event LogPositionUpdated(
@@ -67,7 +69,7 @@ contract PositionManager is DSMath, DSStop {
         public
         stoppable
         auth// owner
-        returns (bool) 
+        returns (bool)
     {
         LendroidNetworkParameters = NetworkParameters(_address);
         return true;
@@ -79,7 +81,7 @@ contract PositionManager is DSMath, DSStop {
         public
         stoppable
         auth// owner
-        returns (bool) 
+        returns (bool)
     {
         LendroidWallet = Wallet(_address);
         return true;
@@ -88,7 +90,7 @@ contract PositionManager is DSMath, DSStop {
     /// @dev Allows owner to set the Oracle contract.
     /// @param _address Address of the Oracle contract.
     function setLendroidOracle(address _address)
-        public 
+        public
         stoppable
         auth// owner
         returns (bool)
@@ -121,6 +123,8 @@ contract PositionManager is DSMath, DSStop {
         position.trader = _trader;
         position.tokenSymbol = _tokenSymbol;
         position.tokenAmount = _tokenAmount;
+        position.openingRate = _tokenRate;
+        position.positionAmount = _positionAmount;
         position.positionId = openPositions[msg.sender].length;
         position.positionHash = getPositionHash(
             position.timestamp,
@@ -139,18 +143,18 @@ contract PositionManager is DSMath, DSStop {
             _trader,
             "position opened"
         );
-        
+
         return true;
     }
-    
+
     function closePosition(
             bytes32 _positionHash,
             address _trader
-        ) 
+        )
         public
-        payable 
+        payable
         stoppable
-        returns (bool) 
+        returns (bool)
     {
         // TODO: Check if borrower account is healthy
         // Get position based on hash
@@ -215,7 +219,7 @@ contract PositionManager is DSMath, DSStop {
         for (uint positionId = 0; positionId < openPositions[_trader].length; positionId++) {
             totalPLs = add(totalPLs, unRealizedPL(openPositions[_trader][positionId]));
         }
-        
+
         return totalPLs;
     }
 

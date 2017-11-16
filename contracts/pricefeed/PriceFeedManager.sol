@@ -1,16 +1,16 @@
 pragma solidity ^0.4.18;
-import "./stop.sol";
-import "./NetworkParameters.sol";
-import "./Oracle.sol";
+import "../helpers/stop.sol";
+import "../NetworkParameters.sol";
+import "../Oracle.sol";
 
 
 /// @title Contract that contains supported Oracle. Open to Governance.
 /// @author Lendroid - <vii@lendroid.io>, Inspired from 0xProject
 contract PriceFeedManager is DSStop {
-    
+
     NetworkParameters LendroidNetworkParameters;
     Oracle LendroidOracle;
-    
+
     event LogAddProvider(
         address indexed provider,
         bytes32 name
@@ -32,18 +32,18 @@ contract PriceFeedManager is DSStop {
     );
 
     event LogProviderAddressChange(bytes32 indexed name, address oldAddress, address newAddress);
-    
+
     enum Status {
-        INACTIVE, // Set to inctive when a provider is deactivated
+        INACTIVE, // Set to inactive when a provider is deactivated
         ACTIVE    // Default status when a new provider is added
     }
-    
+
     struct ProviderMetaData {
         address provider;
         bytes32 name;
         Status status;
     }
-    
+
     mapping (address => ProviderMetaData) public providers;
     mapping (bytes32 => address) providerByName;
     bytes32[] public providerNames;
@@ -52,7 +52,7 @@ contract PriceFeedManager is DSStop {
         require(providerByName[_name] != address(0));
         _;
     }
-    
+
     modifier nameDoesNotExist(bytes32 _name) {
         require(providerByName[_name] == address(0));
         _;
@@ -66,10 +66,10 @@ contract PriceFeedManager is DSStop {
     /// @dev Allows owner to set the NetworkParameters contract.
     /// @param _address Address of the NetworkParameters contract.
     function setLendroidNetworkParameters(address _address)
-        public 
+        public
         stoppable
         auth
-        returns (bool) 
+        returns (bool)
     {
         LendroidNetworkParameters = NetworkParameters(_address);
         return true;
@@ -77,11 +77,11 @@ contract PriceFeedManager is DSStop {
 
     /// @dev Allows owner to set the Oracle contract.
     /// @param _address Address of the Oracle contract.
-    function setLendroidOracle(address _address) 
-        public 
+    function setLendroidOracle(address _address)
+        public
         stoppable
         auth
-        returns (bool) 
+        returns (bool)
     {
         LendroidOracle = Oracle(_address);
         return true;
@@ -90,7 +90,7 @@ contract PriceFeedManager is DSStop {
     function isValidProvider(
         address _address)
         public
-        addressNotNull(_address) 
+        addressNotNull(_address)
         constant
         returns (bool validProviderAddress)
     {
@@ -105,7 +105,7 @@ contract PriceFeedManager is DSStop {
     /// @dev Allows PriceFeedProvider contract to update the token price.
     /// @param _symbol Token symbol of type bytes32.
     /// @param _price price value of type uint.
-    function updatePriceFeed(bytes32 _symbol, uint _price) 
+    function updatePriceFeed(bytes32 _symbol, uint _price)
         public
         stoppable
         returns (bool) {

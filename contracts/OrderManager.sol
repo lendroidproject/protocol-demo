@@ -1,14 +1,14 @@
 pragma solidity ^0.4.2;
 
-import './math.sol';
-import './stop.sol';
+import './helpers/math.sol';
+import './helpers/stop.sol';
 
 import './PositionManager.sol';
 import "./NetworkParameters.sol";
 
 /**
-    @title TradeManager
-    @notice The TradeManager contract inherits the DSMath & DSStop contracts, 
+    @title OrderManager
+    @notice The OrderManager contract inherits the DSMath & DSStop contracts,
         and manages trades on Lendroid.
  */
 contract OrderManager is DSMath, DSStop {
@@ -72,7 +72,7 @@ contract OrderManager is DSMath, DSStop {
         public
         stoppable
         auth
-        returns (bool) 
+        returns (bool)
     {
         LendroidNetworkParameters = NetworkParameters(_address);
         return true;
@@ -84,7 +84,7 @@ contract OrderManager is DSMath, DSStop {
         public
         stoppable
         auth
-        returns (bool) 
+        returns (bool)
     {
         LendroidPositionManager = PositionManager(_address);
         return true;
@@ -99,10 +99,10 @@ contract OrderManager is DSMath, DSStop {
             bytes32 _takerTokenSymbol,
             uint _makerTokenAmount,
             uint _takerTokenAmount
-        ) 
-        public 
+        )
+        public
         stoppable
-        returns (bool) 
+        returns (bool)
     {
         // Validate inputs
         require(LendroidNetworkParameters.isValidTradingSymbol(_makerTokenSymbol));
@@ -157,10 +157,10 @@ contract OrderManager is DSMath, DSStop {
     */
     function fillOrder(
             bytes32 _orderHash
-        ) 
-        public 
+        )
+        public
         stoppable
-        returns (bool) 
+        returns (bool)
     {
         Order storage order = orders[_orderHash];
         // Confirm order is available
@@ -215,10 +215,10 @@ contract OrderManager is DSMath, DSStop {
         @return bool : order availability
     */
     function isOrderFillable(bytes32 _orderHash)
-        public 
-        stoppable 
-        constant 
-        returns (bool) 
+        public
+        stoppable
+        constant
+        returns (bool)
     {
         Order storage order = orders[_orderHash];
         return ((order.expiresOn < now) && (order.status == Status.FILLABLE));
