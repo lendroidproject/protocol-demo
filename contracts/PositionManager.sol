@@ -59,7 +59,7 @@ contract PositionManager is DSMath, DSStop {
     /**
         @dev Throws if called by any account.
     */
-    function() {
+    function() public {
         revert();
     }
 
@@ -113,7 +113,13 @@ contract PositionManager is DSMath, DSStop {
         // Calculate WETH rate and verify if borrower can open a position
         uint _maxAmount = LendroidWallet.getMaximumPositionOpenableAmount(_trader);
         uint _tokenRate = LendroidOracle.getPrice(_tokenSymbol);
-        uint _positionAmount = wmul(_tokenRate, _tokenAmount);
+        uint _positionAmount = wmul(
+            _tokenRate,
+            mul(
+                _tokenAmount,
+                10 ** LendroidNetworkParameters.getTokenDecimalsBySymbol(_tokenSymbol)
+            )
+        );
         require(_maxAmount >= _positionAmount);
         // Update balances
         require(LendroidWallet.openPosition(msg.sender, _positionAmount));
@@ -152,7 +158,6 @@ contract PositionManager is DSMath, DSStop {
             address _trader
         )
         public
-        payable
         stoppable
         returns (bool)
     {
@@ -162,6 +167,15 @@ contract PositionManager is DSMath, DSStop {
         // Validations
         // Verify trader
         require(position.trader == msg.sender);
+        // Update balances
+        uint _positionAmount = wmul(
+            LendroidOracle.getPrice(position.tokenSymbol),
+            mul(
+                position.tokenAmount,
+                10 ** LendroidNetworkParameters.getTokenDecimalsBySymbol(position.tokenSymbol)
+            )
+        );
+        require(LendroidWallet.closePosition(position.trader, _positionAmount));
         // Archive the active position
         position.status = Status.CLOSED;
         position.lastUpdated = now;

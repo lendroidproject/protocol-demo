@@ -8,7 +8,7 @@ import "./NetworkParameters.sol";
 
 /**
     @title LoanManager
-    @notice The LoanManager contract inherits the DSMath & DSStop contracts, 
+    @notice The LoanManager contract inherits the DSMath & DSStop contracts,
         and manages loans on Lendroid.
  */
 contract LoanManager is DSMath, DSStop {
@@ -58,7 +58,7 @@ contract LoanManager is DSMath, DSStop {
     /**
         @dev Throws if called by any account.
     */
-    function() {
+    function() public {
         revert();
     }
 
@@ -68,7 +68,7 @@ contract LoanManager is DSMath, DSStop {
         public
         stoppable
         auth
-        returns (bool) 
+        returns (bool)
     {
         LendroidNetworkParameters = NetworkParameters(_address);
         return true;
@@ -80,7 +80,7 @@ contract LoanManager is DSMath, DSStop {
         public
         stoppable
         auth
-        returns (bool) 
+        returns (bool)
     {
         LendroidWallet = Wallet(_address);
         return true;
@@ -92,10 +92,10 @@ contract LoanManager is DSMath, DSStop {
     */
     function availLoan(
             uint _loanAmount
-        ) 
-        public 
+        )
+        public
         stoppable
-        returns (bool) 
+        returns (bool)
     {
         // TODO: Check if borrower account is healthy
         var _borrowableAmount = LendroidWallet.getMaximumBorrowableAmount(msg.sender);
@@ -135,11 +135,11 @@ contract LoanManager is DSMath, DSStop {
         @param _loanHash the hash of the loan that has to be closed
         @return true the loan was successfully closed
     */
-    function closeLoan(bytes32 _loanHash) 
+    function closeLoan(bytes32 _loanHash)
         public
-        payable 
+        payable
         stoppable
-        returns (bool) 
+        returns (bool)
     {
         // TODO: Check if borrower account is healthy
         // Get Active loan based on hash
@@ -168,7 +168,7 @@ contract LoanManager is DSMath, DSStop {
             activeLoan.amountPaid,    // The amount associated with the action
             "loan closed"     // The tyoe of action: "loan availed", "loan closed"
         );
-        
+
         return true;
     }
 
@@ -201,10 +201,10 @@ contract LoanManager is DSMath, DSStop {
         @return uint the owed amount
     */
     function amountOwed(bytes32 _loanHash)
-        public 
-        stoppable 
-        constant 
-        returns (uint) 
+        public
+        stoppable
+        constant
+        returns (uint)
     {
         Loan storage activeLoan = loans[_loanHash];
         uint daysSinceLoan = wdiv(sub(now, activeLoan.timestamp), wdiv(86400, 3600));
@@ -214,20 +214,20 @@ contract LoanManager is DSMath, DSStop {
         }
         return add(interestAccrued, activeLoan.amount);
     }
-    
+
     /**
         @param _loanHash the hash of the loan whose interest is owed
         @return uint the owed interest
     */
     function unRealizedLendingFee(bytes32 _loanHash)
-        public 
-        stoppable 
-        constant 
-        returns (uint) 
+        public
+        stoppable
+        constant
+        returns (uint)
     {
         Loan storage activeLoan = loans[_loanHash];
         uint daysSinceLoan = wdiv(sub(now, activeLoan.timestamp), wdiv(86400, 3600));
-        
+
         return wmul(percentOf(activeLoan.amount, LendroidNetworkParameters.interestRate()), daysSinceLoan);
     }
 
@@ -235,18 +235,18 @@ contract LoanManager is DSMath, DSStop {
         @param _borrower the address of the account that has borrowed loans
         @return uint the total owed amount
     */
-    function unRealizedLendingFees(address _borrower) 
-        public 
+    function unRealizedLendingFees(address _borrower)
+        public
         stoppable
         onlyLendroidWallet
-        constant 
-        returns (uint) 
+        constant
+        returns (uint)
     {
         uint totalInterestAccrued = 0;
         for (uint loanId = 0; loanId < borrowedLoans[_borrower].length; loanId++) {
             totalInterestAccrued = add(totalInterestAccrued, unRealizedLendingFee(borrowedLoans[_borrower][loanId]));
         }
-        
+
         return totalInterestAccrued;
     }
 
