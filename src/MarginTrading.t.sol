@@ -120,24 +120,8 @@ contract MarginTradingTest is DSTest, DSMath {
         LendroidOracle.updateTokenPrice("OMG", currentOMGPrice);
     }
 
-    function testFail_basic_sanity() public {
-        assertTrue(false);
-    }
-
     function test_GetPrice() public {
         assertEq(LendroidOracle.getPrice("OMG"), currentOMGPrice);
-    }
-
-    function test_DepositLendingFunds() public {
-        assertEq(
-          LendroidWallet.getFundingBalance(),
-          0
-        );
-        assert(LendroidWallet.call.value(lendingAmount)(bytes4(keccak256("depositLendingFunds()"))));
-        assertEq(
-          LendroidWallet.getFundingBalance(),
-          lendingAmount
-        );
     }
 
     function test_MarginCalculation() public {

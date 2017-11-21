@@ -6,12 +6,22 @@ import 'ds-stop/stop.sol';
 import './Wallet.sol';
 import "./NetworkParameters.sol";
 
+
+contract LoanEvents {
+    event LogLoanUpdated(
+        bytes32 _loanHash,  // The Hash of the Loan
+        address _address,   // The address that caused the action
+        uint256 _amount,    // The amount associated with the action
+        bytes32 _action     // The tyoe of action: "loan availed", "loan closed"
+    );
+}
+
 /**
     @title LoanManager
     @notice The LoanManager contract inherits the DSMath & DSStop contracts,
         and manages loans on Lendroid.
  */
-contract LoanManager is DSMath, DSStop {
+contract LoanManager is LoanEvents, DSMath, DSStop {
 
     Wallet public LendroidWallet;
     NetworkParameters public LendroidNetworkParameters;
@@ -38,13 +48,6 @@ contract LoanManager is DSMath, DSStop {
 
     mapping (bytes32 => Loan) public loans;
     mapping (address => bytes32[]) borrowedLoans;
-
-    event LogLoanUpdated(
-        bytes32 _loanHash,  // The Hash of the Loan
-        address _address,   // The address that caused the action
-        uint256 _amount,    // The amount associated with the action
-        bytes32 _action     // The tyoe of action: "loan availed", "loan closed"
-    );
 
     modifier onlyLendroidWallet() {
         require(msg.sender == address(LendroidWallet));
