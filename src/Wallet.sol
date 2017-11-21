@@ -1,9 +1,9 @@
-pragma solidity 0.4.18;
+pragma solidity ^0.4.17;
 
-import "./helpers/math.sol";
-import "./helpers/token.sol";
-import "./helpers/stop.sol";
-import "./helpers/multivault.sol";
+import "ds-math/math.sol";
+import "ds-token/token.sol";
+import "ds-stop/stop.sol";
+import "ds-vault/multivault.sol";
 
 import "./NetworkParameters.sol";
 import "./LoanManager.sol";
@@ -101,7 +101,7 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
         returns (bool)
     {
 
-        // address _token = LendroidNetworkParameters.getTokenAddressBySymbol("W-ETH");
+        /*address _token = LendroidNetworkParameters.getTokenAddressBySymbol("W-ETH");*/
         // pull
         // pull(DSToken(_token), msg.sender, msg.value);
         collateralBalances[msg.sender] = add(collateralBalances[msg.sender], msg.value);
@@ -120,7 +120,7 @@ contract Wallet is DSMultiVault, DSMath, DSStop {
             (_amount <= getMaximumWithdrawableAmount(msg.sender))
         );
         collateralBalances[msg.sender] = sub(collateralBalances[msg.sender], _amount);
-        // address _token = LendroidNetworkParameters.getTokenAddressBySymbol("W-ETH");
+        /*address _token = LendroidNetworkParameters.getTokenAddressBySymbol("W-ETH");*/
         // push
         // push(DSToken(_token), msg.sender, _amount);
         msg.sender.transfer(_amount);

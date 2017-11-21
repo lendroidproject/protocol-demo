@@ -1,7 +1,7 @@
 pragma solidity ^0.4.10;
 
-import './base.sol';
-import './exec.sol';
+import 'ds-token/base.sol';
+import 'ds-exec/exec.sol';
 
 contract DSEthTokenEvents {
     event Deposit(address indexed who, uint amount);

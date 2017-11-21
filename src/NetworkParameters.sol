@@ -1,7 +1,7 @@
-pragma solidity 0.4.18;
+pragma solidity ^0.4.17;
 
-import "./helpers/math.sol";
-import "./helpers/stop.sol";
+import "ds-math/math.sol";
+import "ds-stop/stop.sol";
 
 // FOR DEMO
 
@@ -34,7 +34,7 @@ contract NetworkParameters is DSMath, DSStop {
         address indexed token,
         bytes32 name,
         bytes32 symbol,
-        uint decimals,
+        uint tokenDecimals,
         Status status,
         uint value,
         bytes32 action

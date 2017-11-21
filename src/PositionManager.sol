@@ -1,7 +1,7 @@
-pragma solidity ^0.4.2;
+pragma solidity ^0.4.17;
 
-import './helpers/math.sol';
-import './helpers/stop.sol';
+import 'ds-math/math.sol';
+import 'ds-stop/stop.sol';
 
 import './Wallet.sol';
 import "./NetworkParameters.sol";

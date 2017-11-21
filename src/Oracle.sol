@@ -1,7 +1,7 @@
 
-pragma solidity ^0.4.18;
-import "./helpers/math.sol";
-import "./helpers/stop.sol";
+pragma solidity ^0.4.17;
+import "ds-math/math.sol";
+import "ds-stop/stop.sol";
 
 import "./NetworkParameters.sol";
 
@@ -18,7 +18,7 @@ contract Oracle is DSMath, DSStop {
         public
         stoppable
         auth
-        returns (bool) 
+        returns (bool)
     {
         LendroidNetworkParameters = NetworkParameters(_address);
         return true;
