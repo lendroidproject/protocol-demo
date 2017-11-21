@@ -10,3 +10,6 @@
 [submodule "lib/ds-vault"]
 	path = lib/ds-vault
 	url = https://github.com/dapphub/ds-vault
+[submodule "lib/ds-exec"]
+	path = lib/ds-exec
+	url = https://github.com/dapphub/ds-exec
