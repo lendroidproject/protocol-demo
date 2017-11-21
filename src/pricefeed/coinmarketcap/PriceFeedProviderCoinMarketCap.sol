@@ -4,7 +4,7 @@
     For now, this is manual. Will be updated every ~60 seconds.
 */
 
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.17;
 import "./oraclizeAPI.sol";
 import "./Ownable.sol";
 import "../PriceFeedProviderBase.sol";

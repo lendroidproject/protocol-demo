@@ -4,8 +4,9 @@
     For now, this is manual. Will be updated every ~60 seconds.
 */
 
-pragma solidity ^0.4.18;
-import "../helpers/stop.sol";
+pragma solidity ^0.4.17;
+import "ds-stop/stop.sol";
+
 import "../NetworkParameters.sol";
 import "./PriceFeedManager.sol";
 

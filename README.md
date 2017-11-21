@@ -18,28 +18,38 @@ The smart contracts are being built using truffle, and tested on the Kovan netwo
     </p>
 </details>
 <details>
-    <summary>PriceFeed module</summary>
+    <summary>
+      PriceFeed module
+    </summary>
     <p>
         Currently uses price feed from api.coinmarketcap.com via Oraclize. This module is open to contributors who can add their own PriceFeedProvider contracts (extend PriceFeedProviderBase.sol)
     </p>
 </details>
 <details>
-    <summary>Wallet.sol</summary>
+    <summary>
+      Wallet.sol
+    </summary>
     <p>Contains business logic to calculate Lender, Margin account, & Wrangler balances. Also calculates margin balances.
     </p>
 </details>
 <details>
-    <summary>LoanManager.sol</summary>
+    <summary>
+      LoanManager.sol
+    </summary>
     <p>Handles loans. Contains simple CRUD operations on Loan objects.
     </p>
 </details>
 <details>
-    <summary>PositionManager.sol</summary>
+    <summary>
+      PositionManager.sol
+    </summary>
     <p>Handles positions. Contains simple CRUD operations on Position objects.
     </p>
 </details>
 <details>
-    <summary>A placeholder OrderManager.sol</summary>
+    <summary>
+      A placeholder OrderManager.sol
+    </summary>
     <p>Temporarily handles orders for demo purposes.
     </p>
 </details>
