@@ -6,6 +6,8 @@ import 'ds-stop/stop.sol';
 import './PositionManager.sol';
 import "./NetworkParameters.sol";
 
+import "./0x/Exchange.sol";
+
 /**
     @title OrderManager
     @notice The OrderManager contract inherits the DSMath & DSStop contracts.
@@ -15,6 +17,7 @@ contract OrderManager is DSMath, DSStop {
 
     PositionManager public LendroidPositionManager;
     NetworkParameters public LendroidNetworkParameters;
+    Exchange public ZeroXExchange;
 
     enum Status {
         UNISSUED,
@@ -90,21 +93,40 @@ contract OrderManager is DSMath, DSStop {
         return true;
     }
 
+    /// @dev Allows owner to set the NetworkParameters contract.
+    /// @param _address Address of the NetworkParameters contract.
+    function setZeroXExchange(address _address)
+        public
+        stoppable
+        auth
+        returns (bool)
+    {
+        ZeroXExchange = Exchange(_address);
+        return true;
+    }
+
     /**
         @notice Create a new order. Sender is the maker
         @return true the order was successfully created
     */
-    function createOrder(
-            bytes32 _makerTokenSymbol,
-            bytes32 _takerTokenSymbol,
-            uint _makerTokenAmount,
-            uint _takerTokenAmount
+    /*function createOrder(
+            address[5] orderAddresses,
+            uint[6] orderValues,
+            uint fillTakerTokenAmount,
+            bool shouldThrowOnInsufficientBalanceOrAllowance,
+            uint8 v,
+            bytes32 r,
+            bytes32 s
         )
         public
         stoppable
         returns (bool)
     {
         // Validate inputs
+        bytes32 _makerTokenSymbol = LendroidNetworkParameters.getTokenSymbolByAddress(orderAddresses[2]);
+        bytes32 _takerTokenSymbol = LendroidNetworkParameters.getTokenSymbolByAddress(orderAddresses[3]);
+        uint _makerTokenAmount = orderValues[0];
+        uint _takerTokenAmount = orderValues[1];
         require(LendroidNetworkParameters.isValidTradingSymbol(_makerTokenSymbol));
         require(LendroidNetworkParameters.isValidTradingSymbol(_takerTokenSymbol));
         address _makerToken = LendroidNetworkParameters.getTokenAddressBySymbol(_makerTokenSymbol);
@@ -149,7 +171,7 @@ contract OrderManager is DSMath, DSStop {
             "order created"
         );
         return true;
-    }
+    }*/
 
     /**
         @notice Fill an existing order. Sender is the taker
