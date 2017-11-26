@@ -39,7 +39,7 @@ contract LoanManagerTest is DSTest, DSMath {
         assert(LendroidWallet.call.value(3000000000000000)(bytes4(keccak256("depositLendingFunds()"))));
     }
 
-    function testFailAvailLoanWithoutDeposit() public {
+    function testFail_AvailLoanWithoutDeposit() public {
       // Assert deposit has not been made
       assertEq(
         LendroidWallet.getMarginValue(this),
@@ -49,7 +49,7 @@ contract LoanManagerTest is DSTest, DSMath {
       LendroidLoanManager.availLoan(1500000000000000);// FAIL HERE
     }
 
-    function testFailAvailLoanMoreThanBorrowable() public {
+    function testFail_AvailLoanMoreThanBorrowable() public {
       // Deposit collateral
       assert(LendroidWallet.call.value(1000000000000000)(bytes4(keccak256("depositCollateral()"))));
       // Assert maximum borrowable loan amount
@@ -61,7 +61,8 @@ contract LoanManagerTest is DSTest, DSMath {
       LendroidLoanManager.availLoan(3000000000000000);// FAIL HERE
     }
 
-    function testAvailLoan() public {
+    function test_AvailLoan() public {
+      // This test is valid when the
       // Deposit collateral
       assert(LendroidWallet.call.value(1000000000000000)(bytes4(keccak256("depositCollateral()"))));
       // Assert loan has not been availed

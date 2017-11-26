@@ -34,8 +34,8 @@ LendroidPositionManager.setLendroidOracle()
 Update Token settings
 —————————————————————
 LendroidNetworkParameters.addToken(“W-ETH”, …)
-LendroidNetworkParameters.addToken(“OMG”, …)
-Oracle.updateTokenPrice(“OMG”, …)
+LendroidNetworkParameters.addToken(“GOD”, …)
+Oracle.updateTokenPrice(“GOD”, …)
 
 Add lending funds to Wallet
 ———————————————————————————
@@ -51,7 +51,7 @@ LendroidLoanManager.availLoan(_amount)
 
 Margin account - Open Position
 ——————————————————————————————
-LendroidPositionManager.openPosition(“OMG”, _tokenAmount)
+LendroidPositionManager.openPosition(“GOD”, _tokenAmount)
 
 Margin account - Calculation
 ————————————————————————————
@@ -66,7 +66,7 @@ LendroidWallet.isMarginAccountHealthy(_address)
 contract MarginTradingTest is DSTest, DSMath {
     /*contracts*/
     DSEthToken LendroidWethToken;
-    DSToken OMGToken;
+    DSToken GODToken;
     Oracle LendroidOracle;
     NetworkParameters LendroidNetworkParameters;
     Wallet LendroidWallet;
@@ -74,7 +74,7 @@ contract MarginTradingTest is DSTest, DSMath {
     PositionManager LendroidPositionManager;
 
     /*test values*/
-    uint currentOMGPrice = 1355538690000000;
+    uint currentGODPrice = 1355538690000000;
     uint lendingAmount = 3000000000000000;
     uint collateralAmount = 1000000000000000;
     uint loanAmount = 1500000000000000;
@@ -82,9 +82,9 @@ contract MarginTradingTest is DSTest, DSMath {
     function setUp() public {
         /*Deploy contracts*/
         LendroidWethToken = new DSEthToken();
-        OMGToken = new DSToken("OMG");
-        OMGToken.setName("OmiseGo");
-        OMGToken.mint(1000);
+        GODToken = new DSToken("GOD");
+        GODToken.setName("Game of Drones");
+        GODToken.mint(1000);
         LendroidNetworkParameters = new NetworkParameters();
         LendroidOracle = new Oracle();
         LendroidWallet = new Wallet();
@@ -110,18 +110,18 @@ contract MarginTradingTest is DSTest, DSMath {
           false,true,false
         );
         LendroidNetworkParameters.addToken(
-          address(OMGToken),
-          "OmiseGo",
-          "OMG",
+          address(GODToken),
+          "Game of Drones",
+          "GOD",
           18,
-          currentOMGPrice,
+          currentGODPrice,
           false,false,true
         );
-        LendroidOracle.updateTokenPrice("OMG", currentOMGPrice);
+        LendroidOracle.updateTokenPrice("GOD", currentGODPrice);
     }
 
     function test_GetPrice() public {
-        assertEq(LendroidOracle.getPrice("OMG"), currentOMGPrice);
+        assertEq(LendroidOracle.getPrice("GOD"), currentGODPrice);
     }
 
     function test_MarginCalculation() public {
@@ -188,14 +188,14 @@ contract MarginTradingTest is DSTest, DSMath {
           400000000000000
         );
         /*Open Position*/
-        LendroidPositionManager.createPosition(this, "OMG", 1);
+        LendroidPositionManager.createPosition(this, "GOD", 1);
         assertEq(
           LendroidWallet.getMarginValue(this),
           1000000000000000
         );
         assertEq(
           LendroidWallet.getTotalOpenPositionsValue(this),
-          currentOMGPrice
+          currentGODPrice
         );
         assertEq(
           LendroidWallet.getNetValue(this),
@@ -204,12 +204,12 @@ contract MarginTradingTest is DSTest, DSMath {
         assert(
           LendroidWallet.isMarginAccountHealthy(this)
         );
-        uint OMGPriceChange = 755538690000000;
-        currentOMGPrice -= OMGPriceChange;
-        LendroidOracle.updateTokenPrice("OMG", currentOMGPrice);
+        uint GODPriceChange = 755538690000000;
+        currentGODPrice -= GODPriceChange;
+        LendroidOracle.updateTokenPrice("GOD", currentGODPrice);
         assertEq(
           LendroidWallet.getNetValue(this),
-          1000000000000000 - OMGPriceChange
+          1000000000000000 - GODPriceChange
         );
         /*assertEq(
           LendroidWallet.getCurrentMargin(this),

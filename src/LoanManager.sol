@@ -47,7 +47,7 @@ contract LoanManager is LoanEvents, DSMath, DSStop {
     }
 
     mapping (bytes32 => Loan) public loans;
-    mapping (address => bytes32[]) borrowedLoans;
+    mapping (address => bytes32[]) availedLoans;
 
     modifier onlyLendroidWallet() {
         require(msg.sender == address(LendroidWallet));
@@ -111,7 +111,7 @@ contract LoanManager is LoanEvents, DSMath, DSStop {
         loan.amount = _loanAmount;
         loan.expiresOn = now + LendroidNetworkParameters.maxLoanPeriodDays();
         loan.interestRate = LendroidNetworkParameters.interestRate();
-        loan.loanId = borrowedLoans[msg.sender].length;
+        loan.loanId = availedLoans[msg.sender].length;
         loan.status = Status.ACTIVE;
 
         loan.loanHash = getLoanHash(
@@ -123,7 +123,7 @@ contract LoanManager is LoanEvents, DSMath, DSStop {
             loan.loanId
         );
         loans[loan.loanHash] = loan;
-        borrowedLoans[msg.sender].push(loan.loanHash);
+        availedLoans[msg.sender].push(loan.loanHash);
         // msg.sender.transfer(loan.amount);
         LogLoanUpdated(
             loan.loanHash,  // The Hash of the Loan
@@ -163,8 +163,8 @@ contract LoanManager is LoanEvents, DSMath, DSStop {
             activeLoan.amount,
             activeLoan.amountPaid
         ));
-        borrowedLoans[msg.sender][activeLoan.loanId] = borrowedLoans[msg.sender][borrowedLoans[msg.sender].length - 1];
-        borrowedLoans[msg.sender].length--;
+        availedLoans[msg.sender][activeLoan.loanId] = availedLoans[msg.sender][availedLoans[msg.sender].length - 1];
+        availedLoans[msg.sender].length--;
         LogLoanUpdated(
             activeLoan.loanHash,  // The Hash of the Loan
             msg.sender,   // The address that caused the action
@@ -246,8 +246,8 @@ contract LoanManager is LoanEvents, DSMath, DSStop {
         returns (uint)
     {
         uint totalInterestAccrued = 0;
-        for (uint loanId = 0; loanId < borrowedLoans[_borrower].length; loanId++) {
-            totalInterestAccrued = add(totalInterestAccrued, unRealizedLendingFee(borrowedLoans[_borrower][loanId]));
+        for (uint loanId = 0; loanId < availedLoans[_borrower].length; loanId++) {
+            totalInterestAccrued = add(totalInterestAccrued, unRealizedLendingFee(availedLoans[_borrower][loanId]));
         }
 
         return totalInterestAccrued;
@@ -257,12 +257,12 @@ contract LoanManager is LoanEvents, DSMath, DSStop {
         @param _borrower the address that has borrowed loans
         @return bytes32[] array of loan hashes
     */
-    function loansBorrowed(address _borrower)
+    function loansAvailed(address _borrower)
         public
         stoppable
         constant
         returns (bytes32[]) {
-            return borrowedLoans[_borrower];
+            return availedLoans[_borrower];
         }
 
 }

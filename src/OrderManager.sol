@@ -8,8 +8,8 @@ import "./NetworkParameters.sol";
 
 /**
     @title OrderManager
-    @notice The OrderManager contract inherits the DSMath & DSStop contracts,
-        and manages trades on Lendroid.
+    @notice The OrderManager contract inherits the DSMath & DSStop contracts.
+        It just accepts 0x orders and opens / closes positions.
  */
 contract OrderManager is DSMath, DSStop {
 

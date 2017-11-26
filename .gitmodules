@@ -13,6 +13,3 @@
 [submodule "lib/ds-exec"]
 	path = lib/ds-exec
 	url = https://github.com/dapphub/ds-exec
-[submodule "lib/ethereum-api"]
-	path = lib/ethereum-api
-	url = https://github.com/oraclize/ethereum-api
