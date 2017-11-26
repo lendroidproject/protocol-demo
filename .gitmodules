@@ -13,3 +13,6 @@
 [submodule "lib/ds-exec"]
 	path = lib/ds-exec
 	url = https://github.com/dapphub/ds-exec
+[submodule "lib/contracts"]
+	path = lib/contracts
+	url = https://github.com/0xProject/contracts
