@@ -53,3 +53,12 @@ The smart contracts are being built using truffle, and tested on the Kovan netwo
     <p>Temporarily handles orders for demo purposes.
     </p>
 </details>
+
+Running the code
+================
+
+> git clone git@github.com:gedanziger/protocol-demo.git
+
+> docker-compose run --rm lendroid -c 'cd /src && dapp update'
+
+> docker-compose run --rm lendroid -c 'cd /src && dapp upgrade'
