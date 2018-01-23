@@ -6,3 +6,16 @@ services:
       context: .
     volumes:
     - .:/src
+  ganache-cli:
+    image: tiabas/ganache-cli
+    volumes:
+    - data:/data
+    entrypoint:
+      - ganache-cli
+      - -p 8545
+      - -i 50
+      - -e 100000
+      - -g 1
+      - --db /data
+volumes:
+  data:
