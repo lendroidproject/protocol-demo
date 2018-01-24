@@ -18,7 +18,7 @@ services:
       - --port 8545
       - --defaultBalanceEther 100000
       - --gasPrice 1
-      - --db /data/snapshot
+      - --db /data/0x_snapshot
       - --debug
     ports:
       - "8545:8545"
