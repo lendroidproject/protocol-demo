@@ -6,15 +6,29 @@ services:
       context: .
     volumes:
     - .:/src
+  geth_rpc:
+    image: ethereum/client-go
+    volumes:
+    - ./data:/data
+    command:
+    - geth
+    - --identity "LocalNet"
+    - --datadir /data
+    - --nodiscover
+    - --fast
+    - --cache=512
+    - --networkid 14
+    - --rpc
+    ports:
+    - "8545:8545"
+    - "30303:30303"
   ganache-cli:
     image: tiabas/ganache-cli
     volumes:
     - ./data:/data
     entrypoint:
       - ganache-cli
-      - --accounts 0
       - --networkId 7
-      - --accounts 4
       - --port 8545
       - --defaultBalanceEther 100000
       - --gasPrice 1
