@@ -59,6 +59,12 @@ Running the code
 
 > git clone git@github.com:gedanziger/protocol-demo.git
 
-> docker-compose run --rm lendroid -c 'cd /src && dapp update'
+> docker-compose run --rm geth --identity LocalNode --datadir ./data --networkid 1999 removedb
 
-> docker-compose run --rm lendroid -c 'cd /src && dapp upgrade'
+> docker-compose run --rm geth --identity LocalNode --datadir ./data --networkid 1999 account new --password <(echo 123456qwerty)
+
+> docker-compose run --rm geth --identity LocalNode --datadir ./data --networkid 1999 init ./data/genesis.json
+
+> docker-compose run --rm geth --identity LocalNode --datadir ./data --networkid 1999 --gasprice 1
+
+>  docker-compose run --rm geth --identity LocalNode --datadir ./data --networkid 1999 console
