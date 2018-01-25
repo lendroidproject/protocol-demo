@@ -1,0 +1,38 @@
+version: "3.2"
+
+services:
+  geth:
+    image: ethereum/client-go:release-1.7
+    volumes:
+    - ./data:/data
+    entrypoint: geth --identity LocalNode --datadir ./data --networkid 1999 --rpc --rpcaddr 0.0.0.0 --rpcport 8545 --fakepow
+    ports:
+    - "8545:8545"
+    - "8546:8546"
+    - "30303:30303"
+  dapp:
+    build:
+      context: .
+    volumes:
+    - .:/dapp
+    working_dir: /dapp
+    links:
+    - geth
+    environment:
+      ETH_RPC_URL: http://geth:8545
+      ETH_GAS: 4712388
+      ETH_GAS_PRICE: 10
+  ganache-cli:
+    image: tiabas/ganache-cli
+    volumes:
+    - ./data:/data
+    entrypoint:
+      - ganache-cli
+      - --networkId 7
+      - --port 8545
+      - --defaultBalanceEther 100000
+      - --gasPrice 1
+      - --db /data/0x_snapshot
+      - --debug
+    ports:
+      - "8545:8545"

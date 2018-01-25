@@ -1,4 +1,4 @@
-pragma solidity 0.4.17;
+pragma solidity ^0.4.17;
 
 import "./../tokens/UnlimitedAllowanceToken.sol";
 import "./../base/SafeMath.sol";
