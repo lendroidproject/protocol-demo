@@ -1,27 +1,27 @@
 version: "3.2"
 
 services:
-  lendroid:
+  geth:
+    image: ethereum/client-go:release-1.7
+    volumes:
+    - ./data:/data
+    entrypoint: geth --identity LocalNode --datadir ./data --networkid 1999 --rpc --rpcaddr 0.0.0.0 --rpcport 8545 --fakepow
+    ports:
+    - "8545:8545"
+    - "8546:8546"
+    - "30303:30303"
+  dapp:
     build:
       context: .
     volumes:
-    - .:/src
-  geth_rpc:
-    image: ethereum/client-go
-    volumes:
-    - ./data:/data
-    command:
+    - .:/dapp
+    working_dir: /dapp
+    links:
     - geth
-    - --identity "LocalNet"
-    - --datadir /data
-    - --nodiscover
-    - --fast
-    - --cache=512
-    - --networkid 14
-    - --rpc
-    ports:
-    - "8545:8545"
-    - "30303:30303"
+    environment:
+      ETH_RPC_URL: http://geth:8545
+      ETH_GAS: 4712388
+      ETH_GAS_PRICE: 10
   ganache-cli:
     image: tiabas/ganache-cli
     volumes:
