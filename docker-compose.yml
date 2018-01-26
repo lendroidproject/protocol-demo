@@ -1,7 +1,7 @@
 version: "3.2"
 
 services:
-  geth:
+  geth_rpc:
     image: ethereum/client-go:release-1.7
     volumes:
     - ./data:/data
@@ -10,16 +10,21 @@ services:
     - "8545:8545"
     - "8546:8546"
     - "30303:30303"
+  geth_console:
+    image: ethereum/client-go:release-1.7
+    volumes:
+    - ./data:/data:ro
+    entrypoint: geth attach ./data/geth.ipc
   dapp:
+    links:
+    - geth_rpc
     build:
       context: .
     volumes:
     - .:/dapp
     working_dir: /dapp
-    links:
-    - geth
     environment:
-      ETH_RPC_URL: http://geth:8545
+      ETH_RPC_URL: http://geth_rpc:8545
       ETH_GAS: 4712388
       ETH_GAS_PRICE: 10
   ganache-cli:
