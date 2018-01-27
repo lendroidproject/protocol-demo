@@ -59,12 +59,14 @@ Running the code
 
 > git clone git@github.com:gedanziger/protocol-demo.git
 
-> docker-compose run --rm geth_rc --identity LocalNode --datadir ./data --networkid 1999 removedb
+> cp data_snapshot data
 
-> docker-compose run --rm geth_rc --identity LocalNode --datadir ./data --networkid 1999 account new --password <(echo 123456qwerty)
+> docker-compose run --rm geth_rpc --identity LocalNode --datadir ./data --networkid 1999 removedb
 
-> docker-compose run --rm geth_rc --identity LocalNode --datadir ./data --networkid 1999 init ./data/genesis.json
+> docker-compose run --rm geth_rpc --identity LocalNode --datadir ./data --networkid 1999 account new --password <(echo 123456qwerty)
 
-> docker-compose run --rm geth_rc --identity LocalNode --datadir ./data --networkid 1999 --gasprice 1
+> docker-compose run --rm geth_rpc --identity LocalNode --datadir ./data --networkid 1999 init ./data/genesis.json
+
+> docker-compose run --rm geth_rpc --identity LocalNode --datadir ./data --networkid 1999 --gasprice 1
 
 >  docker-compose run --rm geth_rc --identity LocalNode --datadir ./data --networkid 1999 console
