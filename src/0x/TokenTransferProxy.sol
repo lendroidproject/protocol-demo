@@ -16,7 +16,7 @@
 
 */
 
-pragma solidity 0.4.17;
+pragma solidity ^0.4.17;
 
 import "./base/Token.sol";
 import "./base/Ownable.sol";
